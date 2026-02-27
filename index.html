@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trắc nghiệm Màu Sắc Cá Nhân | Personal Color Test</title>
+  <meta name="description" content="Khám phá mùa màu cá nhân của bạn qua 12 câu hỏi! Tìm bảng màu phù hợp nhất với tông da, màu mắt và tóc của bạn. Miễn phí 100%.">
+  <meta name="keywords" content="personal color test, trắc nghiệm màu sắc cá nhân, test màu cá nhân, mùa màu, bảng màu cá nhân, xuân hạ thu đông">
+  <link rel="canonical" href="https://personal-color-test.pages.dev/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://personal-color-test.pages.dev/">
+  <meta property="og:title" content="Trắc nghiệm Màu Sắc Cá Nhân — 12 Câu Hỏi">
+  <meta property="og:description" content="Khám phá mùa màu cá nhân của bạn! Tìm bảng màu phù hợp nhất với tông da, màu mắt và tóc. Miễn phí 100%.">
+  <meta property="og:image" content="https://personal-color-test.pages.dev/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:site_name" content="Personal Color Test">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Trắc nghiệm Màu Sắc Cá Nhân — 12 Câu Hỏi">
+  <meta name="twitter:description" content="Khám phá mùa màu cá nhân của bạn! Tìm bảng màu phù hợp.">
+  <meta name="twitter:image" content="https://personal-color-test.pages.dev/og-image.jpg">
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": "Trắc nghiệm Màu Sắc Cá Nhân",
+    "description": "Khám phá mùa màu cá nhân của bạn qua 12 câu hỏi phân tích tông da, màu mắt, tóc.",
+    "educationalAlignment": {
+      "@type": "AlignmentObject",
+      "alignmentType": "educationalSubject",
+      "targetName": "Personal Color Analysis"
+    },
+    "numberOfQuestions": 12,
+    "inLanguage": "vi"
+  }
+  </script>
+
+  <!-- GA4 placeholder -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script> -->
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== INTRO SCREEN ===== -->
+    <div id="intro-screen" class="screen active">
+      <div class="container intro-container">
+        <div class="intro-badge">Personal Color Test</div>
+        <h1 class="intro-title">Trắc Nghiệm<br>Màu Sắc Cá Nhân</h1>
+        <p class="intro-subtitle">Khám phá mùa màu phù hợp nhất với bạn<br>bằng AI hoặc trắc nghiệm 12 câu hỏi</p>
+        <div class="intro-seasons">
+          <span class="season-chip spring-chip">🌸 Xuân</span>
+          <span class="season-chip summer-chip">🌊 Hạ</span>
+          <span class="season-chip autumn-chip">🍂 Thu</span>
+          <span class="season-chip winter-chip">❄️ Đông</span>
+        </div>
+
+        <!-- 2-track CTA -->
+        <div class="intro-tracks">
+          <button class="track-btn track-ai" onclick="startAI()">
+            <span class="track-icon">📷</span>
+            <span class="track-label">AI Phân tích ảnh</span>
+            <span class="track-desc">Chụp / tải ảnh — 10 giây</span>
+            <span class="track-badge">AI</span>
+          </button>
+          <button class="track-btn track-quiz" onclick="startQuiz()">
+            <span class="track-icon">📝</span>
+            <span class="track-label">Trắc nghiệm</span>
+            <span class="track-desc">12 câu hỏi — 3 phút</span>
+          </button>
+        </div>
+        <p class="intro-note">Miễn phí 100% · Ảnh không được lưu trữ</p>
+        <div class="intro-features">
+          <div class="feature-item">
+            <span class="feature-icon">🎨</span>
+            <span>Bảng màu cá nhân</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">💄</span>
+            <span>Gợi ý makeup</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">👗</span>
+            <span>Phối đồ phù hợp</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AI CAMERA SCREEN ===== -->
+    <div id="ai-screen" class="screen">
+      <div class="container ai-container">
+        <div class="ai-header">
+          <button class="back-btn" onclick="exitAI()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h2 class="ai-title">AI Phân tích màu sắc</h2>
+        </div>
+
+        <!-- Camera View -->
+        <div class="camera-wrap" id="camera-wrap">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" style="display:none;"></canvas>
+          <div class="face-guide">
+            <div class="face-oval"></div>
+            <p class="face-guide-text">Đặt khuôn mặt vào khung</p>
+          </div>
+          <!-- Captured photo preview -->
+          <img id="photo-preview" class="photo-preview" style="display:none;" alt="Preview">
+          <!-- Scan overlay -->
+          <div class="scan-overlay" id="scan-overlay" style="display:none;">
+            <div class="scan-line"></div>
+          </div>
+        </div>
+
+        <!-- Camera tips -->
+        <div class="ai-tips" id="ai-tips">
+          <p>Mẹo chụp ảnh tốt:</p>
+          <ul>
+            <li>Sử dụng ánh sáng tự nhiên (gần cửa sổ)</li>
+            <li>Không trang điểm đậm</li>
+            <li>Để lộ trán và cổ</li>
+          </ul>
+        </div>
+
+        <!-- Camera controls -->
+        <div class="ai-controls" id="ai-controls">
+          <button class="ai-btn ai-capture-btn" id="capture-btn" onclick="capturePhoto()">
+            <span class="capture-ring"></span>
+          </button>
+          <div class="ai-alt-btns">
+            <label class="ai-btn ai-upload-btn" for="photo-upload">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Tải ảnh lên
+            </label>
+            <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+            <button class="ai-btn ai-switch-btn" id="switch-camera-btn" onclick="switchCamera()" style="display:none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/><polyline points="13 15 17 11 21 15"/><polyline points="21 9 17 13 13 9"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Retake / Analyze after capture -->
+        <div class="ai-actions" id="ai-actions" style="display:none;">
+          <button class="ai-btn ai-retake-btn" onclick="retakePhoto()">Chụp lại</button>
+          <button class="cta-btn ai-analyze-btn" onclick="analyzePhoto()">
+            Phân tích AI
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <!-- Detected colors preview (shown during analysis) -->
+        <div class="detected-colors" id="detected-colors" style="display:none;">
+          <h3>Màu sắc phát hiện được</h3>
+          <div class="detected-row">
+            <div class="detected-item">
+              <div class="detected-dot" id="detected-skin"></div>
+              <span>Da</span>
+            </div>
+            <div class="detected-item">
+              <div class="detected-dot" id="detected-hair"></div>
+              <span>Tóc</span>
+            </div>
+            <div class="detected-item">
+              <div class="detected-dot" id="detected-eye"></div>
+              <span>Mắt</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallback: no camera -->
+        <div class="ai-nocamera" id="ai-nocamera" style="display:none;">
+          <p>Không thể truy cập camera.</p>
+          <label class="cta-btn" for="photo-upload-fallback">
+            Tải ảnh lên thay thế
+          </label>
+          <input type="file" id="photo-upload-fallback" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+          <button class="ai-text-btn" onclick="startQuiz()">Hoặc làm trắc nghiệm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ SCREEN ===== -->
+    <div id="quiz-screen" class="screen">
+      <div class="container quiz-container">
+        <div class="quiz-header">
+          <button class="back-btn" id="back-btn" onclick="goBack()" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="progress-wrap">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-text" id="progress-text">1 / 12</span>
+          </div>
+        </div>
+        <div id="question-area">
+          <h2 class="question-text" id="question-text"></h2>
+          <p class="question-hint" id="question-hint"></p>
+          <div class="options-list" id="options-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LOADING SCREEN ===== -->
+    <div id="loading-screen" class="screen">
+      <div class="container loading-container">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <span class="spinner-emoji">🎨</span>
+        </div>
+        <h2 class="loading-title">Đang phân tích màu sắc của bạn...</h2>
+        <p class="loading-sub">Chúng tôi đang tìm mùa màu phù hợp nhất</p>
+        <div class="loading-steps">
+          <div class="load-step" id="load-step-1">Phân tích tông màu da...</div>
+          <div class="load-step" id="load-step-2">Đối chiếu màu mắt & tóc...</div>
+          <div class="load-step" id="load-step-3">Xác định mùa màu cá nhân...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESULT SCREEN ===== -->
+    <div id="result-screen" class="screen">
+      <div class="container result-container">
+        <!-- Result Header -->
+        <div class="result-header" id="result-header">
+          <div class="result-badge">Kết quả của bạn</div>
+          <div class="result-emoji" id="result-emoji"></div>
+          <div class="result-baseseason-badge" id="result-baseseason-badge"></div>
+          <h1 class="result-season" id="result-season"></h1>
+          <p class="result-en-name" id="result-en-name"></p>
+          <p class="result-subtitle" id="result-subtitle"></p>
+          <p class="result-desc" id="result-desc"></p>
+        </div>
+
+        <!-- 3-Axis Bar Chart -->
+        <div class="card axis-card">
+          <h3 class="card-title">📊 Phân tích 3 trục màu sắc</h3>
+          <div class="axis-chart" id="axis-chart">
+            <div class="axis-row">
+              <span class="axis-label-left">Cool</span>
+              <div class="axis-bar-wrap">
+                <div class="axis-bar" id="axis-temp"></div>
+                <div class="axis-center"></div>
+              </div>
+              <span class="axis-label-right">Warm</span>
+            </div>
+            <div class="axis-row">
+              <span class="axis-label-left">Dark</span>
+              <div class="axis-bar-wrap">
+                <div class="axis-bar" id="axis-depth"></div>
+                <div class="axis-center"></div>
+              </div>
+              <span class="axis-label-right">Light</span>
+            </div>
+            <div class="axis-row">
+              <span class="axis-label-left">Soft</span>
+              <div class="axis-bar-wrap">
+                <div class="axis-bar" id="axis-clarity"></div>
+                <div class="axis-center"></div>
+              </div>
+              <span class="axis-label-right">Clear</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="card palette-card">
+          <h3 class="card-title">🎨 Bảng màu phù hợp</h3>
+          <div class="palette-grid" id="palette-grid"></div>
+          <h4 class="palette-avoid-title">❌ Màu nên tránh</h4>
+          <div class="palette-avoid" id="palette-avoid"></div>
+        </div>
+
+        <!-- Makeup Guide -->
+        <div class="card makeup-card">
+          <h3 class="card-title">💄 Hướng dẫn Makeup</h3>
+          <div class="makeup-grid" id="makeup-grid"></div>
+        </div>
+
+        <!-- Clothing Colors -->
+        <div class="card clothing-card">
+          <h3 class="card-title">👗 Màu quần áo phù hợp</h3>
+          <div class="clothing-list" id="clothing-list"></div>
+        </div>
+
+        <!-- Hair Color -->
+        <div class="card hair-card">
+          <h3 class="card-title">💇 Màu tóc phù hợp</h3>
+          <div class="hair-list" id="hair-list"></div>
+        </div>
+
+        <!-- Jewelry -->
+        <div class="card jewelry-card">
+          <h3 class="card-title">💍 Kim loại & Trang sức</h3>
+          <p class="jewelry-text" id="jewelry-text"></p>
+        </div>
+
+        <!-- Celebrities -->
+        <div class="card celeb-card">
+          <h3 class="card-title">⭐ Người nổi tiếng cùng mùa</h3>
+          <div class="celeb-list" id="celeb-list"></div>
+        </div>
+
+        <!-- Product Recommendations -->
+        <div class="card product-card">
+          <h3 class="card-title">🛒 Sản phẩm gợi ý</h3>
+          <div class="product-grid" id="product-grid"></div>
+        </div>
+
+        <!-- Share -->
+        <div class="card share-card">
+          <h3 class="card-title">📤 Chia sẻ kết quả</h3>
+          <div class="share-btns">
+            <button class="share-btn facebook-btn" onclick="shareFacebook()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              Facebook
+            </button>
+            <button class="share-btn copy-btn" onclick="copyLink()">
+              🔗 Sao chép link
+            </button>
+          </div>
+        </div>
+
+        <!-- Cross Links -->
+        <div class="card cross-card">
+          <h3 class="card-title">🔬 Bài test khác</h3>
+          <a href="https://skintypetest.com" class="cross-link" target="_blank" rel="noopener">
+            <span class="cross-icon">🧴</span>
+            <div>
+              <strong>Trắc nghiệm Loại Da</strong>
+              <p>Khám phá loại da của bạn qua 12 câu hỏi</p>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+        </div>
+
+        <!-- Retake -->
+        <button class="cta-btn retake-btn" onclick="retakeQuiz()">
+          🔄 Làm lại trắc nghiệm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AdSense placeholder -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Personal Color Test. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="/privacy.html">Chính sách bảo mật</a>
+        <a href="/contact.html">Liên hệ</a>
+        <a href="https://skintypetest.com" target="_blank" rel="noopener">Skin Type Test</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
