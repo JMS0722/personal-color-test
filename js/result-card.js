@@ -19,75 +19,80 @@ export async function generateResultCard() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Background gradient
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, s.light);
-  grad.addColorStop(1, '#FFFFFF');
-  ctx.fillStyle = grad;
+  // ===== LAYOUT: Left = info, Right = palette + axis =====
+  const LEFT_W = 520;
+  const RIGHT_X = LEFT_W;
+
+  // Background
+  ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, W, H);
+
+  // Left panel gradient
+  const leftGrad = ctx.createLinearGradient(0, 0, LEFT_W, H);
+  leftGrad.addColorStop(0, s.light);
+  leftGrad.addColorStop(1, '#FFFFFF');
+  ctx.fillStyle = leftGrad;
+  ctx.fillRect(0, 0, LEFT_W, H);
 
   // Left accent bar
   ctx.fillStyle = s.primary;
-  ctx.fillRect(0, 0, 8, H);
+  ctx.fillRect(0, 0, 6, H);
+
+  // --- LEFT SIDE: Season info ---
+  const cx = LEFT_W / 2;
 
   // Emoji
-  ctx.font = '80px serif';
+  ctx.font = '72px serif';
   ctx.textAlign = 'center';
-  ctx.fillText(s.emoji, 600, 120);
+  ctx.fillText(s.emoji, cx, 130);
 
   // Season name (Vietnamese)
-  ctx.font = 'bold 48px "Nunito", sans-serif';
-  ctx.fillStyle = '#2D2D2D';
-  ctx.textAlign = 'center';
-  ctx.fillText(s.name, 600, 190);
+  ctx.font = 'bold 44px sans-serif';
+  ctx.fillStyle = '#2D2A26';
+  ctx.fillText(s.name, cx, 200);
 
   // English name
-  ctx.font = '24px "Nunito", sans-serif';
-  ctx.fillStyle = '#666666';
-  ctx.fillText(s.enName, 600, 230);
+  ctx.font = '22px sans-serif';
+  ctx.fillStyle = '#6B6560';
+  ctx.fillText(s.enName, cx, 240);
 
   // Subtitle
-  ctx.font = '20px "Nunito", sans-serif';
-  ctx.fillStyle = '#888888';
-  ctx.fillText(s.subtitle, 600, 270);
+  ctx.font = '18px sans-serif';
+  ctx.fillStyle = '#9E9690';
+  ctx.fillText(s.subtitle, cx, 275);
 
-  // Color palette swatches
-  const paletteY = 320;
-  const swatchSize = 50;
-  const gap = 12;
-  const totalWidth = s.palette.length * (swatchSize + gap) - gap;
-  const startX = (W - totalWidth) / 2;
-
-  s.palette.forEach((hex, i) => {
-    const x = startX + i * (swatchSize + gap);
-    ctx.fillStyle = hex;
-    roundRect(ctx, x, paletteY, swatchSize, swatchSize, 8);
-    ctx.fill();
-  });
-
-  // 3-axis scores
-  const axisY = 420;
+  // 3-axis scores (vertical stack on left)
   const axes = [
-    { label: 'Cool ← → Warm', value: state.scores.temp },
-    { label: 'Dark ← → Light', value: state.scores.depth },
-    { label: 'Soft ← → Clear', value: state.scores.clarity }
+    { left: 'Cool', right: 'Warm', value: state.scores.temp },
+    { left: 'Dark', right: 'Light', value: state.scores.depth },
+    { left: 'Soft', right: 'Clear', value: state.scores.clarity }
   ];
 
+  const barStartY = 320;
+  const barW = 340;
+  const barH = 16;
+  const barX = (LEFT_W - barW) / 2;
+  const barGap = 56;
+
   axes.forEach((axis, i) => {
-    const x = 200 + i * 300;
-    ctx.font = '14px "Nunito", sans-serif';
-    ctx.fillStyle = '#999999';
-    ctx.textAlign = 'center';
-    ctx.fillText(axis.label, x, axisY);
+    const y = barStartY + i * barGap;
+
+    // Labels
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#9E9690';
+    ctx.textAlign = 'right';
+    ctx.fillText(axis.left, barX - 8, y + 12);
+    ctx.textAlign = 'left';
+    ctx.fillText(axis.right, barX + barW + 8, y + 12);
 
     // Bar background
-    const barW = 200;
-    const barH = 12;
-    const barX = x - barW / 2;
-    const barY = axisY + 10;
-    ctx.fillStyle = '#E0E0E0';
-    roundRect(ctx, barX, barY, barW, barH, 6);
+    ctx.fillStyle = '#E8E0D8';
+    roundRect(ctx, barX, y, barW, barH, 8);
     ctx.fill();
+
+    // Center line
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillRect(barX + barW / 2 - 1, y, 2, barH);
 
     // Bar fill
     const maxPossible = 15;
@@ -97,24 +102,89 @@ export async function generateResultCard() {
     ctx.fillStyle = s.primary;
 
     if (normalizedPct >= 50) {
-      roundRect(ctx, barX + center, barY, (normalizedPct - 50) / 100 * barW, barH, 6);
+      const fillW = Math.max(2, (normalizedPct - 50) / 100 * barW);
+      roundRect(ctx, barX + center, y, fillW, barH, 8);
     } else {
-      const fillW = (50 - normalizedPct) / 100 * barW;
-      roundRect(ctx, barX + center - fillW, barY, fillW, barH, 6);
+      const fillW = Math.max(2, (50 - normalizedPct) / 100 * barW);
+      roundRect(ctx, barX + center - fillW, y, fillW, barH, 8);
     }
     ctx.fill();
   });
 
-  // Footer
-  ctx.font = '16px "Nunito", sans-serif';
-  ctx.fillStyle = '#BBBBBB';
-  ctx.textAlign = 'center';
-  ctx.fillText('personal-color-test-5dz.pages.dev', 600, 580);
+  // --- RIGHT SIDE: Color palette grid (6×2) ---
+  const swatchSize = 80;
+  const gap = 12;
+  const cols = 6;
+  const rows = 2;
+  const gridW = cols * swatchSize + (cols - 1) * gap;
+  const gridH = rows * swatchSize + (rows - 1) * gap;
+  const gridX = RIGHT_X + (W - RIGHT_X - gridW) / 2;
+  const gridY = 60;
 
-  // Watermark
-  ctx.font = '13px "Nunito", sans-serif';
-  ctx.fillStyle = '#CCCCCC';
-  ctx.fillText('Bài Test Màu Sắc Cá Nhân Miễn Phí', 600, 610);
+  s.palette.forEach((hex, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = gridX + col * (swatchSize + gap);
+    const y = gridY + row * (swatchSize + gap);
+    ctx.fillStyle = hex;
+    roundRect(ctx, x, y, swatchSize, swatchSize, 12);
+    ctx.fill();
+
+    // Hex label
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#9E9690';
+    ctx.textAlign = 'center';
+    ctx.fillText(hex, x + swatchSize / 2, y + swatchSize + 16);
+  });
+
+  // "Bảng màu" title above grid
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillStyle = '#6B6560';
+  ctx.textAlign = 'center';
+  ctx.fillText('Bảng màu của bạn', RIGHT_X + (W - RIGHT_X) / 2, gridY - 20);
+
+  // Avoid colors row below palette
+  const avoidY = gridY + gridH + 40;
+  ctx.font = '14px sans-serif';
+  ctx.fillStyle = '#9E9690';
+  ctx.textAlign = 'center';
+  ctx.fillText('Nên tránh', RIGHT_X + (W - RIGHT_X) / 2, avoidY);
+
+  const avoidSize = 36;
+  const avoidGap = 10;
+  const avoidCount = Math.min(s.avoid.length, 6);
+  const avoidTotalW = avoidCount * avoidSize + (avoidCount - 1) * avoidGap;
+  const avoidStartX = RIGHT_X + (W - RIGHT_X - avoidTotalW) / 2;
+
+  s.avoid.forEach((hex, i) => {
+    if (i >= 6) return;
+    const x = avoidStartX + i * (avoidSize + avoidGap);
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = hex;
+    roundRect(ctx, x, avoidY + 12, avoidSize, avoidSize, 6);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
+
+    // X mark
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.textAlign = 'center';
+    ctx.fillText('✕', x + avoidSize / 2, avoidY + 12 + avoidSize / 2 + 5);
+  });
+
+  // --- BOTTOM BAR ---
+  const barBottomH = 48;
+  const barBottomY = H - barBottomH;
+  const bottomGrad = ctx.createLinearGradient(0, barBottomY, W, barBottomY);
+  bottomGrad.addColorStop(0, s.primary);
+  bottomGrad.addColorStop(1, s.light);
+  ctx.fillStyle = bottomGrad;
+  ctx.fillRect(0, barBottomY, W, barBottomH);
+
+  ctx.font = '15px sans-serif';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.fillText('personal-color-test-5dz.pages.dev  ·  Miễn phí 100%', W / 2, barBottomY + 30);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), 'image/png');
