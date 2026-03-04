@@ -51,13 +51,16 @@
     gtag('config', 'G-XXXXXXXXXX');
   </script> -->
 
+  <!-- Fonts: Be Vietnam Pro + Quicksand (Design Kit §5) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/screens.css">
   <link rel="stylesheet" href="css/seasons.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="app">
@@ -235,9 +238,9 @@
         <h2 class="loading-title">Đang phân tích màu sắc của bạn...</h2>
         <p class="loading-sub">Chúng tôi đang tìm mùa màu phù hợp nhất</p>
         <div class="loading-steps">
-          <div class="load-step" id="load-step-1">Phân tích tông màu da...</div>
-          <div class="load-step" id="load-step-2">Đối chiếu màu mắt & tóc...</div>
-          <div class="load-step" id="load-step-3">Xác định mùa màu cá nhân...</div>
+          <div class="load-step" id="load-step-1"><span class="step-icon">1</span> Phân tích tông màu da...</div>
+          <div class="load-step" id="load-step-2"><span class="step-icon">2</span> Đối chiếu màu mắt & tóc...</div>
+          <div class="load-step" id="load-step-3"><span class="step-icon">3</span> Xác định mùa màu cá nhân...</div>
         </div>
       </div>
     </div>
@@ -401,6 +404,8 @@
     </div>
   </footer>
 
+  <!-- Confetti (Design Kit §8-4, 6KB) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

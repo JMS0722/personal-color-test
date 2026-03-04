@@ -6,10 +6,19 @@ export function renderResult() {
   const s = state.currentSeason;
   if (!s) return;
 
-  // Apply season theme
-  document.documentElement.style.setProperty('--season-primary', s.primary);
-  document.documentElement.style.setProperty('--season-light', s.light);
-  document.documentElement.style.setProperty('--season-gradient', s.gradient);
+  // Apply season theme via CSS custom properties
+  const root = document.documentElement;
+  root.style.setProperty('--season-primary', s.primary);
+  root.style.setProperty('--season-light', s.light);
+  root.style.setProperty('--season-gradient', s.gradient);
+
+  // Apply 12-season CSS class for theme (Design Kit §9)
+  const resultScreen = document.getElementById('result-screen');
+  if (resultScreen) {
+    // Remove all previous season theme classes
+    resultScreen.className = resultScreen.className.replace(/season-theme-\S+/g, '').trim();
+    resultScreen.classList.add('screen', 'season-theme-' + s.key);
+  }
 
   // Header
   document.getElementById('result-emoji').textContent = s.emoji;
@@ -25,9 +34,9 @@ export function renderResult() {
   baseBadge.textContent = baseLabels[s.baseseason] || '';
   baseBadge.className = 'result-baseseason-badge baseseason-' + s.baseseason;
 
-  // Result header background
+  // Result header — gradient applied via CSS class, remove inline background
   const header = document.getElementById('result-header');
-  header.style.background = s.light;
+  header.style.background = '';
 
   // 3-Axis bar chart
   renderAxisChart();
@@ -55,6 +64,9 @@ export function renderResult() {
 
   // Scroll animations
   initScrollAnimations();
+
+  // Confetti celebration (Design Kit §8-4)
+  celebrateResult(s);
 
   // Update URL hash
   updateUrlHash();
@@ -234,19 +246,41 @@ function renderProducts(s) {
   });
 }
 
-/** Scroll animation using IntersectionObserver */
+/** Scroll animation using IntersectionObserver (Design Kit §8-5) */
 function initScrollAnimations() {
   const cards = document.querySelectorAll('#result-screen .card');
-  cards.forEach(card => card.classList.add('card-hidden'));
+  cards.forEach(card => {
+    card.classList.add('card-animate');
+  });
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('card-visible');
+        entry.target.classList.add('visible');
         observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.15 });
 
   cards.forEach(card => observer.observe(card));
+}
+
+/**
+ * Confetti celebration on result reveal (Design Kit §8-4).
+ * @param {import('./data/seasons.js').SeasonData} s
+ */
+function celebrateResult(s) {
+  if (typeof window.confetti !== 'function') return;
+  const colors = s.palette.slice(0, 4);
+  setTimeout(() => {
+    window.confetti({
+      particleCount: 60,
+      spread: 55,
+      origin: { y: 0.65 },
+      colors: colors,
+      gravity: 0.8,
+      scalar: 0.9,
+      drift: 0,
+    });
+  }, 600);
 }

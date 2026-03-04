@@ -10,10 +10,11 @@
 }
 
 .intro-title {
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1.2;
-  background: var(--gradient);
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: 1.3;
+  background: var(--brand-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -21,10 +22,10 @@
 }
 
 .intro-subtitle {
-  font-size: 16px;
-  color: var(--text-sub);
+  font-size: var(--text-md);
+  color: var(--text-secondary);
   margin-bottom: 28px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .intro-seasons {
@@ -37,8 +38,8 @@
 
 .intro-note {
   margin-top: 16px;
-  font-size: 13px;
-  color: var(--text-sub);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .intro-features {
@@ -51,7 +52,7 @@
 
 .intro-k-beauty {
   font-size: 0.85rem;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-top: -8px;
 }
 
@@ -69,7 +70,8 @@
 }
 
 .ai-title {
-  font-size: 18px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: var(--text-lg);
   font-weight: 700;
 }
 
@@ -78,7 +80,7 @@
   width: 100%;
   aspect-ratio: 3/4;
   background: #1a1a1a;
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 16px;
 }
@@ -132,7 +134,7 @@
 
 .face-guide-text {
   color: rgba(255,255,255,.7);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   margin-top: 12px;
   text-shadow: 0 1px 4px rgba(0,0,0,.5);
@@ -153,9 +155,9 @@
   left: 10%;
   width: 80%;
   height: 3px;
-  background: linear-gradient(90deg, transparent, var(--gold), var(--rose), transparent);
+  background: linear-gradient(90deg, transparent, var(--brand-gold), var(--brand-rose), transparent);
   border-radius: 2px;
-  box-shadow: 0 0 12px var(--gold), 0 0 24px var(--rose);
+  box-shadow: 0 0 12px var(--brand-gold), 0 0 24px var(--brand-rose);
   animation: scanMove 2s ease-in-out infinite;
 }
 
@@ -168,17 +170,17 @@
 
 /* AI tips */
 .ai-tips {
-  background: var(--gold-lt);
+  background: var(--brand-gold-light);
   border-radius: var(--radius-sm);
   padding: 14px 18px;
   margin-bottom: 20px;
-  font-size: 13px;
-  color: var(--text-sub);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .ai-tips p {
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
@@ -189,7 +191,7 @@
 
 .ai-tips li::before {
   content: '✓ ';
-  color: var(--gold);
+  color: var(--brand-gold);
   font-weight: 700;
 }
 
@@ -208,21 +210,22 @@
   gap: 8px;
   border: none;
   cursor: pointer;
-  font-family: var(--font);
-  transition: all .2s;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  transition: all .2s var(--ease-out-3);
 }
 
 .ai-capture-btn {
   width: 72px;
   height: 72px;
-  background: var(--gradient);
+  background: var(--brand-gradient);
   border-radius: 50%;
   position: relative;
-  box-shadow: 0 4px 20px rgba(201,149,107,.35);
+  box-shadow: var(--shadow-3);
 }
 
 .ai-capture-btn:hover {
   transform: scale(1.08);
+  box-shadow: var(--shadow-4);
 }
 
 .ai-capture-btn:active {
@@ -233,7 +236,7 @@
   display: block;
   width: 56px;
   height: 56px;
-  border: 3px solid var(--white);
+  border: 3px solid var(--bg-card);
   border-radius: 50%;
 }
 
@@ -244,17 +247,18 @@
 
 .ai-upload-btn, .ai-switch-btn {
   padding: 10px 20px;
-  background: var(--white);
-  border: 2px solid var(--border);
-  border-radius: 50px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-full);
   font-size: 14px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-primary);
+  min-height: 48px;
 }
 
 .ai-upload-btn:hover, .ai-switch-btn:hover {
-  border-color: var(--gold);
-  background: var(--gold-lt);
+  border-color: var(--brand-gold);
+  background: var(--brand-gold-light);
 }
 
 /* After capture actions */
@@ -267,16 +271,16 @@
 
 .ai-retake-btn {
   padding: 14px 28px;
-  background: var(--white);
-  border: 2px solid var(--border);
-  border-radius: 50px;
-  font-size: 15px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .ai-retake-btn:hover {
-  border-color: var(--rose);
+  border-color: var(--brand-rose);
 }
 
 .ai-analyze-btn {
@@ -287,9 +291,9 @@
 
 /* Detected colors */
 .detected-colors {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   padding: 20px;
   margin-top: 16px;
   text-align: center;
@@ -299,7 +303,7 @@
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
 }
 
 .detected-row {
@@ -319,14 +323,14 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 3px solid var(--border);
-  transition: all .5s;
+  border: 3px solid var(--border-default);
+  transition: all .5s var(--ease-out-5);
 }
 
 .detected-item span {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--text-sub);
+  color: var(--text-secondary);
 }
 
 /* No camera fallback */
@@ -336,8 +340,8 @@
 }
 
 .ai-nocamera p {
-  font-size: 16px;
-  color: var(--text-sub);
+  font-size: var(--text-md);
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
@@ -346,11 +350,11 @@
   margin: 16px auto 0;
   background: none;
   border: none;
-  color: var(--gold);
-  font-size: 15px;
+  color: var(--brand-gold);
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  font-family: var(--font);
+  font-family: 'Be Vietnam Pro', sans-serif;
   text-decoration: underline;
 }
 
@@ -367,8 +371,40 @@
   margin-bottom: 32px;
 }
 
+/* 질문 전환 애니메이션 (Design Kit §8-2) */
+@keyframes questionEnter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes questionExit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+#question-area {
+  animation: questionEnter 0.4s var(--ease-out-5) both;
+}
+
+#question-area.exiting {
+  animation: questionExit 0.3s var(--ease-out-3) both;
+}
+
 .question-text {
-  font-size: 22px;
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
+  font-size: var(--text-xl);
   font-weight: 700;
   margin-bottom: 8px;
   line-height: 1.4;
@@ -376,7 +412,7 @@
 
 .question-hint {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
@@ -386,7 +422,7 @@
   gap: 12px;
 }
 
-/* ===== LOADING SCREEN ===== */
+/* ===== LOADING SCREEN (Design Kit §8-6) ===== */
 .loading-container {
   min-height: 100vh;
   display: flex;
@@ -407,9 +443,9 @@
 .spinner-ring {
   width: 80px;
   height: 80px;
-  border: 4px solid var(--border);
-  border-top-color: var(--gold);
-  border-right-color: var(--rose);
+  border: 4px solid var(--border-default);
+  border-top-color: var(--brand-gold);
+  border-right-color: var(--brand-rose);
   border-radius: 50%;
   animation: spin 1.2s linear infinite;
 }
@@ -427,6 +463,7 @@
 }
 
 .loading-title {
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -434,7 +471,7 @@
 
 .loading-sub {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 32px;
 }
 
@@ -447,32 +484,121 @@
 }
 
 .load-step {
-  font-size: 14px;
-  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
   opacity: .3;
-  transition: all .4s;
+  transition: all .4s var(--ease-out-3);
+}
+
+.load-step .step-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all .3s var(--ease-out-3);
+  flex-shrink: 0;
 }
 
 .load-step.active {
   opacity: 1;
-  color: var(--gold);
+  color: var(--brand-gold);
   font-weight: 600;
+}
+
+.load-step.active .step-icon {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+  color: white;
+  animation: pulse 1s var(--ease-in-out-2) infinite;
 }
 
 .load-step.done {
   opacity: .6;
-  color: var(--text);
+  color: var(--text-primary);
+}
+
+.load-step.done .step-icon {
+  background: #4CAF50;
+  border-color: #4CAF50;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 /* ===== RESULT SCREEN ===== */
 .result-container {
-  padding: 40px 20px 60px;
+  padding: 0 20px 60px;
 }
 
+/* 결과 헤더 — 글래스모피즘 (Design Kit §7-3) */
 .result-header {
   text-align: center;
-  margin-bottom: 32px;
+  padding: 48px 24px 36px;
+  margin: 0 -20px 32px;
+  background: var(--season-gradient);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  position: relative;
+  overflow: hidden;
 }
+
+/* 글래스 오버레이 */
+.result-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 소프트 블롭 장식 (Design Kit §11-3) */
+.result-header::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  top: -40px;
+  right: -60px;
+  filter: blur(40px);
+}
+
+/* 헤더 내부 콘텐츠 z-index */
+.result-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 결과 스태거드 리빌 (Design Kit §8-3) */
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-header .result-badge    { animation: revealUp 0.5s var(--ease-out-5) 0.1s both; }
+.result-header .result-emoji    { animation: revealUp 0.5s var(--ease-out-5) 0.25s both; }
+.result-header .result-baseseason-badge { animation: revealUp 0.5s var(--ease-out-5) 0.35s both; }
+.result-header .result-season   { animation: revealUp 0.6s var(--ease-out-5) 0.5s both; }
+.result-header .result-en-name  { animation: revealUp 0.5s var(--ease-out-5) 0.65s both; }
+.result-header .result-subtitle { animation: revealUp 0.5s var(--ease-out-5) 0.75s both; }
+.result-header .result-desc     { animation: revealUp 0.5s var(--ease-out-5) 0.9s both; }
 
 .result-emoji {
   font-size: 72px;
@@ -480,18 +606,17 @@
 }
 
 .result-season {
-  font-size: 32px;
-  font-weight: 800;
-  background: var(--season-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--season-text-on-gradient);
+  -webkit-text-fill-color: white;
   margin-bottom: 8px;
 }
 
 .result-subtitle {
-  font-size: 16px;
-  color: var(--text-sub);
+  font-size: var(--text-md);
+  color: rgba(255,255,255,0.85);
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -499,14 +624,14 @@
 .result-en-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-sub);
+  color: rgba(255,255,255,0.7);
   margin-bottom: 4px;
   letter-spacing: .5px;
 }
 
 .result-desc {
-  font-size: 15px;
-  color: var(--text);
+  font-size: var(--text-base);
+  color: rgba(255,255,255,0.9);
   line-height: 1.7;
   max-width: 480px;
   margin: 0 auto;
@@ -527,9 +652,9 @@
 
 .axis-label-left,
 .axis-label-right {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   width: 40px;
   flex-shrink: 0;
 }
@@ -541,7 +666,7 @@
   flex: 1;
   height: 28px;
   background: #f0ebe5;
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   position: relative;
   overflow: hidden;
 }
@@ -560,9 +685,9 @@
   position: absolute;
   top: 2px;
   height: calc(100% - 4px);
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   background: var(--season-gradient);
-  transition: all 1.2s cubic-bezier(.4,0,.2,1);
+  transition: all 1.2s var(--ease-out-5);
 }
 
 /* Color palette */
@@ -573,40 +698,10 @@
   margin-bottom: 24px;
 }
 
-.swatch {
-  aspect-ratio: 1;
-  border-radius: var(--radius-sm);
-  position: relative;
-  cursor: pointer;
-  transition: transform .2s;
-  border: 2px solid rgba(0,0,0,.06);
-}
-
-.swatch:hover {
-  transform: scale(1.08);
-}
-
-.swatch-hex {
-  position: absolute;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-sub);
-  opacity: 0;
-  transition: opacity .2s;
-  white-space: nowrap;
-}
-
-.swatch:hover .swatch-hex {
-  opacity: 1;
-}
-
 .palette-avoid-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 12px;
 }
 
@@ -650,9 +745,9 @@
 }
 
 .makeup-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: .5px;
   margin-bottom: 6px;
@@ -661,7 +756,7 @@
 .makeup-value {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
@@ -695,9 +790,9 @@
 }
 
 .clothing-cat {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   min-width: 70px;
 }
 
@@ -708,11 +803,11 @@
 }
 
 .clothing-tag {
-  font-size: 13px;
+  font-size: var(--text-sm);
   padding: 4px 10px;
-  border-radius: 50px;
-  background: var(--white);
-  color: var(--text);
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -729,7 +824,7 @@
   gap: 8px;
   padding: 10px 16px;
   background: var(--season-light);
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   font-size: 14px;
   font-weight: 500;
 }
@@ -743,9 +838,9 @@
 
 /* Jewelry */
 .jewelry-text {
-  font-size: 15px;
+  font-size: var(--text-base);
   line-height: 1.7;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 /* Celebrities */
@@ -758,7 +853,7 @@
 .celeb-tag {
   padding: 8px 16px;
   background: var(--season-light);
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   font-size: 14px;
   font-weight: 500;
 }
@@ -777,15 +872,15 @@
   background: var(--season-light);
   border-radius: var(--radius-sm);
   text-decoration: none;
-  color: var(--text);
-  transition: all .2s;
+  color: var(--text-primary);
+  transition: all .2s var(--ease-out-3);
   border: 1px solid transparent;
 }
 
 .product-item:hover {
   border-color: var(--season-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-2);
 }
 
 .product-emoji {
@@ -801,8 +896,8 @@
 }
 
 .product-brand {
-  font-size: 12px;
-  color: var(--text-sub);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
 .product-price {
@@ -818,11 +913,11 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: var(--gold-lt);
+  background: var(--brand-gold-light);
   border-radius: var(--radius-sm);
   text-decoration: none;
-  color: var(--text);
-  transition: all .2s;
+  color: var(--text-primary);
+  transition: all .2s var(--ease-out-3);
 }
 
 .cross-link:hover {
@@ -841,13 +936,13 @@
 
 .cross-link strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--text-base);
   margin-bottom: 2px;
 }
 
 .cross-link p {
-  font-size: 13px;
-  color: var(--text-sub);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 /* Retake */
@@ -860,7 +955,7 @@
 /* Compare card */
 .compare-card .compare-desc {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 16px;
   line-height: 1.6;
 }
@@ -871,20 +966,20 @@
 
 .compare-manual p {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .compare-manual select {
   width: 100%;
   padding: 10px 12px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-default);
   border-radius: var(--radius-sm);
-  font-family: var(--font);
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 14px;
   margin-bottom: 10px;
-  background: var(--white);
-  color: var(--text);
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .compare-result {
@@ -896,6 +991,7 @@
 }
 
 .compare-score {
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
   font-size: 48px;
   font-weight: 800;
   background: var(--season-gradient);
@@ -905,8 +1001,8 @@
 }
 
 .compare-comment {
-  font-size: 15px;
-  color: var(--text);
+  font-size: var(--text-base);
+  color: var(--text-primary);
   line-height: 1.6;
   margin-top: 8px;
 }
@@ -931,16 +1027,17 @@
 }
 
 .email-gate-inner {
-  background: var(--white);
-  border-radius: var(--radius);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   padding: 32px 24px;
   max-width: 400px;
   width: 100%;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-5);
 }
 
 .email-gate-inner h3 {
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -948,7 +1045,7 @@
 
 .email-gate-inner p {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin-bottom: 16px;
   line-height: 1.5;
 }
@@ -956,16 +1053,16 @@
 .email-gate-inner input[type="email"] {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-default);
   border-radius: var(--radius-sm);
-  font-family: var(--font);
-  font-size: 15px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: var(--text-base);
   margin-bottom: 12px;
 }
 
 .email-gate-inner input[type="email"]:focus {
   outline: none;
-  border-color: var(--gold);
+  border-color: var(--brand-gold);
 }
 
 .skip-btn {
@@ -973,15 +1070,15 @@
   margin: 12px auto 0;
   background: none;
   border: none;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   font-size: 14px;
   cursor: pointer;
-  font-family: var(--font);
+  font-family: 'Be Vietnam Pro', sans-serif;
   text-decoration: underline;
 }
 
 .skip-btn:hover {
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 /* ===== RESPONSIVE — SCREENS ===== */
@@ -1023,6 +1120,10 @@
     font-size: 56px;
   }
 
+  .result-header {
+    padding: 36px 16px 28px;
+  }
+
   .camera-wrap {
     aspect-ratio: 3/4;
   }
@@ -1050,5 +1151,9 @@
 
   .palette-grid {
     gap: 12px;
+  }
+
+  .result-header {
+    padding: 56px 32px 40px;
   }
 }

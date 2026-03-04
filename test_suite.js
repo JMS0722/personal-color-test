@@ -808,7 +808,7 @@ const criticalClasses = [
   'share-btn', 'copy-btn', 'facebook-btn', 'retake-btn',
   'result-baseseason-badge', 'result-en-name',
   'baseseason-spring', 'baseseason-summer', 'baseseason-autumn', 'baseseason-winter',
-  'card-hidden', 'card-visible', 'share-download-btn', 'zalo-btn',
+  'card-animate', 'card-hidden', 'card-visible', 'share-download-btn', 'zalo-btn',
   'social-proof', 'compare-card', 'compare-score', 'compare-comment'
 ];
 
@@ -964,8 +964,8 @@ if (htmlSrc.includes('social-proof') && appSrc.includes('initSocialProof')) {
 
 // Scroll animations
 const resultSrc = jsSources['js/result.js'] || '';
-if (resultSrc.includes('IntersectionObserver') && resultSrc.includes('card-visible')) {
-  ok('Scroll animations: IntersectionObserver + card-visible');
+if (resultSrc.includes('IntersectionObserver') && resultSrc.includes('card-animate')) {
+  ok('Scroll animations: IntersectionObserver + card-animate');
 } else {
   ng('Scroll animations', 'Missing IntersectionObserver');
 }

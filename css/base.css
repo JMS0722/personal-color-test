@@ -1,41 +1,119 @@
-/* ===== VARIABLES ===== */
+/* ===== DESIGN TOKENS (Design Kit §4) ===== */
 :root {
-  --gold: #C9956B;
-  --gold-lt: #FFF8EE;
-  --rose: #D4768A;
-  --rose-lt: #FFF0F3;
-  --bg: #FFFBF5;
-  --white: #FFFFFF;
-  --text: #2D2A26;
-  --text-sub: #6B6560;
-  --border: #E8E0D8;
-  --gradient: linear-gradient(135deg, #C9956B, #D4768A);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 2px 12px rgba(201,149,107,.12);
-  --shadow-lg: 0 8px 32px rgba(201,149,107,.16);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* === 브랜드 컬러 === */
+  --brand-gold: #C9956B;
+  --brand-gold-light: #FFF8EE;
+  --brand-rose: #D4768A;
+  --brand-rose-light: #FFF0F3;
+  --brand-gradient: linear-gradient(135deg, #C9956B, #D4768A);
 
-  /* Season theme (overridden dynamically) */
-  --season-primary: #C9956B;
-  --season-light: #FFF8EE;
-  --season-gradient: linear-gradient(135deg, #C9956B, #D4768A);
+  /* === 시맨틱 컬러 === */
+  --bg-primary: #FFFBF5;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #FAF6F0;
+  --text-primary: #2D2A26;
+  --text-secondary: #6B6560;
+  --text-muted: #9E9690;
+  --text-disabled: #C8C2BC;
+  --border-default: #E8E0D8;
+  --border-hover: var(--brand-gold);
+
+  /* === 시즌 테마 (동적 오버라이드) === */
+  --season-primary: var(--brand-gold);
+  --season-secondary: var(--brand-rose);
+  --season-light: var(--brand-gold-light);
+  --season-gradient: var(--brand-gradient);
+  --season-text-on-gradient: #FFFFFF;
+
+  /* === 레이아웃 === */
+  --container-max: 560px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 50px;
+
+  /* === 타이포 스케일 === */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.25rem;
+
+  /* === 그림자 스케일 === */
+  --shadow-1: 0 1px 2px rgba(201,149,107,.06), 0 1px 3px rgba(201,149,107,.1);
+  --shadow-2: 0 2px 12px rgba(201,149,107,.12);
+  --shadow-3: 0 4px 20px rgba(201,149,107,.16);
+  --shadow-4: 0 6px 28px rgba(201,149,107,.22);
+  --shadow-5: 0 8px 32px rgba(201,149,107,.25);
+
+  /* === 이징 === */
+  --ease-out-3: cubic-bezier(.25, .46, .45, .94);
+  --ease-out-5: cubic-bezier(.22, 1, .36, 1);
+  --ease-in-out-2: cubic-bezier(.45, .05, .55, .95);
+  --ease-spring-3: cubic-bezier(.5, 1.25, .75, 1.25);
+
+  /* === 레거시 호환 별칭 === */
+  --gold: var(--brand-gold);
+  --gold-lt: var(--brand-gold-light);
+  --rose: var(--brand-rose);
+  --rose-lt: var(--brand-rose-light);
+  --bg: var(--bg-primary);
+  --white: var(--bg-card);
+  --text: var(--text-primary);
+  --text-sub: var(--text-secondary);
+  --border: var(--border-default);
+  --gradient: var(--brand-gradient);
+  --radius: var(--radius-md);
+  --shadow: var(--shadow-2);
+  --shadow-lg: var(--shadow-4);
+  --font: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
 }
 
-/* ===== RESET & BASE ===== */
+/* ===== RESET & BASE (Design Kit §5) ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
+  font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+  font-size: var(--text-base);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
 
+/* 디스플레이/헤딩 */
+h1, h2, .result-season, .intro-title {
+  font-family: 'Quicksand', 'Be Vietnam Pro', sans-serif;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+/* 베트남어 diacritics 여유 */
+.result-season,
+.intro-title,
+.question-text {
+  padding-top: 0.15em;
+  overflow: visible;
+}
+
+.option-btn span {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+input, select, textarea {
+  font-size: 16px;
+}
+
 .container {
-  max-width: 560px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -43,7 +121,7 @@ body {
 /* ===== SCREEN SYSTEM ===== */
 .screen {
   display: none;
-  animation: fadeUp .45s ease both;
+  animation: fadeUp .45s var(--ease-out-5) both;
 }
 
 .screen.active {
@@ -59,9 +137,9 @@ body {
 .site-footer {
   text-align: center;
   padding: 32px 20px;
-  font-size: 13px;
-  color: var(--text-sub);
-  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-default);
   margin-top: 20px;
 }
 
@@ -73,12 +151,20 @@ body {
 }
 
 .footer-links a {
-  color: var(--text-sub);
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
 .footer-links a:hover {
-  color: var(--gold);
+  color: var(--brand-gold);
+}
+
+/* ===== ACCESSIBILITY (Design Kit §8-5) ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ===== RESPONSIVE — BASE ===== */

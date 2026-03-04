@@ -192,12 +192,22 @@ export function selectOption(idx, btn) {
   state.questionPath.push(q.id);
   state.answers.push(idx);
 
-  // Determine next question (input-based)
+  // Determine next question (input-based) with slide animation
   setTimeout(() => {
     const next = pickNextQuestion();
     state.currentQuestion = next;
     if (next) {
-      renderQuestion();
+      // Add exit animation, then render next
+      const area = document.getElementById('question-area');
+      if (area) {
+        area.classList.add('exiting');
+        setTimeout(() => {
+          area.classList.remove('exiting');
+          renderQuestion();
+        }, 300);
+      } else {
+        renderQuestion();
+      }
     } else {
       // Early completion: fill progress bar to 100%
       document.getElementById('progress-fill').style.width = '100%';

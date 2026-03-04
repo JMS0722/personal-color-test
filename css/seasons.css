@@ -1,10 +1,10 @@
 /* ===== BASE SEASON BADGE ===== */
 .result-baseseason-badge {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 700;
   padding: 5px 16px;
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   margin-bottom: 12px;
   letter-spacing: .3px;
 }
@@ -13,3 +13,93 @@
 .baseseason-summer { background: #EBF5FF; color: #4A8FD4; }
 .baseseason-autumn { background: #FFF0E6; color: #C4723A; }
 .baseseason-winter { background: #F0E8FF; color: #6B4CC4; }
+
+/* ===== 12-SEASON VISUAL THEMES (Design Kit §9) ===== */
+
+/* --- Spring --- */
+.season-theme-brightspring {
+  --season-primary: #FF6B35;
+  --season-secondary: #FFB347;
+  --season-light: #FFF8F0;
+  --season-gradient: linear-gradient(135deg, #FF6B35, #FFB347);
+}
+
+.season-theme-lightspring {
+  --season-primary: #FFAB76;
+  --season-secondary: #FFD4A8;
+  --season-light: #FFFAF5;
+  --season-gradient: linear-gradient(135deg, #FFAB76, #FFD4A8);
+}
+
+.season-theme-warmspring {
+  --season-primary: #E8913A;
+  --season-secondary: #F4C472;
+  --season-light: #FFF6EC;
+  --season-gradient: linear-gradient(135deg, #E8913A, #F4C472);
+}
+
+/* --- Summer --- */
+.season-theme-lightsummer {
+  --season-primary: #8BB8D6;
+  --season-secondary: #B5D4E8;
+  --season-light: #F5F9FC;
+  --season-gradient: linear-gradient(135deg, #8BB8D6, #B5D4E8);
+}
+
+.season-theme-coolsummer {
+  --season-primary: #6A8FA7;
+  --season-secondary: #9FB8CB;
+  --season-light: #F2F6F9;
+  --season-gradient: linear-gradient(135deg, #6A8FA7, #9FB8CB);
+}
+
+.season-theme-softsummer {
+  --season-primary: #9CAAAB;
+  --season-secondary: #C4CDCE;
+  --season-light: #F5F7F7;
+  --season-gradient: linear-gradient(135deg, #9CAAAB, #C4CDCE);
+}
+
+/* --- Autumn --- */
+.season-theme-warmautumn {
+  --season-primary: #C77B3F;
+  --season-secondary: #D4A06A;
+  --season-light: #FBF5EE;
+  --season-gradient: linear-gradient(135deg, #C77B3F, #D4A06A);
+}
+
+.season-theme-deepautumn {
+  --season-primary: #8B4E2A;
+  --season-secondary: #A66B3C;
+  --season-light: #F8F1EA;
+  --season-gradient: linear-gradient(135deg, #8B4E2A, #A66B3C);
+}
+
+.season-theme-softautumn {
+  --season-primary: #B09070;
+  --season-secondary: #CCBA9A;
+  --season-light: #FAF7F2;
+  --season-gradient: linear-gradient(135deg, #B09070, #CCBA9A);
+}
+
+/* --- Winter --- */
+.season-theme-coolwinter {
+  --season-primary: #5B7FA5;
+  --season-secondary: #8EAAC5;
+  --season-light: #F0F4F8;
+  --season-gradient: linear-gradient(135deg, #5B7FA5, #8EAAC5);
+}
+
+.season-theme-deepwinter {
+  --season-primary: #3D3D6B;
+  --season-secondary: #5E5E8A;
+  --season-light: #EDEDF5;
+  --season-gradient: linear-gradient(135deg, #3D3D6B, #5E5E8A);
+}
+
+.season-theme-brightwinter {
+  --season-primary: #C74B8B;
+  --season-secondary: #E080A8;
+  --season-light: #FDF0F5;
+  --season-gradient: linear-gradient(135deg, #C74B8B, #E080A8);
+}
