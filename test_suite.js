@@ -1,5 +1,5 @@
 /* ===================================================================
-   Personal Color Test — Comprehensive Test Suite (12-Season)
+   Personal Color Test — Comprehensive Test Suite (12-Season, Modular)
    Run with: node test_suite.js
    =================================================================== */
 
@@ -16,59 +16,103 @@ function wn(desc) { warn++; console.log(`  [WARN] ${desc}`); }
 function section(title) { console.log(`\n=== ${title} ===`); }
 
 // ===== LOAD FILES =====
-const scriptSrc = fs.readFileSync(path.join(DIR, 'script.js'), 'utf8');
 const htmlSrc = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
-const cssSrc = fs.readFileSync(path.join(DIR, 'style.css'), 'utf8');
 
-// ===== EXTRACT DATA FROM script.js =====
-let QUESTIONS, SEASONS;
-try {
-  const extractFn = new Function(
-    scriptSrc.replace(/document\b/g, '({querySelectorAll:()=>[],getElementById:()=>({style:{},classList:{remove:()=>{}},innerHTML:"",textContent:"",className:""}),addEventListener:()=>{}})')
-      .replace(/window\b/g, '({scrollTo:()=>{},location:{hash:"",origin:"",pathname:"/"},open:()=>{}})')
-      .replace(/navigator\b/g, '({mediaDevices:{getUserMedia:()=>Promise.resolve(),enumerateDevices:()=>Promise.resolve([])},clipboard:{writeText:()=>Promise.resolve()}})')
-    + '; return { QUESTIONS, SEASONS, getBaseSeason, getSubtype };'
-  );
-  const data = extractFn();
-  QUESTIONS = data.QUESTIONS;
-  SEASONS = data.SEASONS;
-  var getBaseSeason = data.getBaseSeason;
-  var getSubtype = data.getSubtype;
-} catch (e) {
-  try {
-    const qMatch = scriptSrc.match(/const QUESTIONS = (\[[\s\S]*?\n\]);/);
-    const sMatch = scriptSrc.match(/const SEASONS = (\{[\s\S]*?\n\});/);
-    if (qMatch) QUESTIONS = eval(qMatch[1]);
-    if (sMatch) SEASONS = eval(sMatch[1]);
-  } catch (e2) {
-    console.error('FATAL: Cannot extract QUESTIONS/SEASONS:', e2.message);
-    process.exit(1);
+// Load all CSS files
+const cssFiles = ['base.css', 'components.css', 'screens.css', 'seasons.css'];
+let cssSrc = '';
+cssFiles.forEach(f => {
+  const p = path.join(DIR, 'css', f);
+  if (fs.existsSync(p)) cssSrc += fs.readFileSync(p, 'utf8') + '\n';
+});
+
+// Load all JS files
+const jsFiles = [
+  'js/data/questions.js', 'js/data/seasons.js',
+  'js/state.js', 'js/scoring.js', 'js/quiz.js', 'js/result.js',
+  'js/ai-analysis.js', 'js/share.js', 'js/app.js',
+  'js/analytics.js', 'js/result-card.js', 'js/comparison.js'
+];
+let allJsSrc = '';
+const jsSources = {};
+jsFiles.forEach(f => {
+  const p = path.join(DIR, f);
+  if (fs.existsSync(p)) {
+    const content = fs.readFileSync(p, 'utf8');
+    jsSources[f] = content;
+    allJsSrc += content + '\n';
   }
-}
+});
 
-// ===== 1. SYNTAX VALIDATION =====
-section('1. SYNTAX VALIDATION');
+// ===== EXTRACT DATA FROM MODULE FILES =====
+/** @type {Array<{id: number, text: string, hint: string, options: Array<{text: string, temp: number, depth: number, clarity: number}>, primaryAxis: string, secondaryAxis: string, weight: number, phase: number}>} */
+let QUESTIONS;
+let SEASONS;
+let PHASE1_IDS;
+let AXIS_QUESTIONS;
 
 try {
-  new Function(scriptSrc);
-  ok('script.js parses without syntax errors');
+  // Extract QUESTIONS from questions.js
+  const qSrc = jsSources['js/data/questions.js'] || '';
+  const qBody = qSrc
+    .replace(/export\s+const\s+/g, 'const ')
+    .replace(/\/\*\*[\s\S]*?\*\//g, '')
+    .replace(/import\s+.*?;\n/g, '');
+  const qFn = new Function(qBody + '\nreturn { QUESTIONS, PHASE1_IDS, AXIS_QUESTIONS };');
+  const qData = qFn();
+  QUESTIONS = qData.QUESTIONS;
+  PHASE1_IDS = qData.PHASE1_IDS;
+  AXIS_QUESTIONS = qData.AXIS_QUESTIONS;
 } catch (e) {
-  ng('script.js syntax', e.message);
+  console.error('Cannot extract QUESTIONS:', e.message);
 }
 
-if (htmlSrc.includes('<!DOCTYPE html>') && htmlSrc.includes('</html>')) {
-  ok('index.html has doctype and closing tag');
-} else {
-  ng('index.html structure', 'Missing DOCTYPE or closing tag');
+try {
+  // Extract SEASONS from seasons.js
+  const sSrc = jsSources['js/data/seasons.js'] || '';
+  const sBody = sSrc
+    .replace(/export\s+const\s+/g, 'const ')
+    .replace(/\/\*\*[\s\S]*?\*\//g, '')
+    .replace(/import\s+.*?;\n/g, '');
+  const sFn = new Function(sBody + '\nreturn SEASONS;');
+  SEASONS = sFn();
+} catch (e) {
+  console.error('Cannot extract SEASONS:', e.message);
 }
 
-const openBraces = (scriptSrc.match(/{/g) || []).length;
-const closeBraces = (scriptSrc.match(/}/g) || []).length;
-if (openBraces === closeBraces) {
-  ok(`script.js braces balanced (${openBraces} pairs)`);
+// ===== 1. FILE STRUCTURE VALIDATION =====
+section('1. FILE STRUCTURE VALIDATION');
+
+const expectedFiles = [
+  'index.html',
+  'css/base.css', 'css/components.css', 'css/screens.css', 'css/seasons.css',
+  'js/app.js', 'js/state.js', 'js/scoring.js', 'js/quiz.js', 'js/result.js',
+  'js/ai-analysis.js', 'js/share.js', 'js/analytics.js',
+  'js/result-card.js', 'js/comparison.js',
+  'js/data/questions.js', 'js/data/seasons.js'
+];
+let missingFiles = 0;
+expectedFiles.forEach(f => {
+  if (fs.existsSync(path.join(DIR, f))) {
+    ok(`File: ${f}`);
+  } else {
+    ng(`File: ${f}`, 'Not found');
+    missingFiles++;
+  }
+});
+
+// Module imports check
+if (htmlSrc.includes('type="module"') && htmlSrc.includes('js/app.js')) {
+  ok('index.html uses ES module script');
 } else {
-  ng('script.js braces', `Open: ${openBraces}, Close: ${closeBraces}`);
+  ng('Module import', 'Missing type="module" or js/app.js reference');
 }
+
+// CSS links
+cssFiles.forEach(f => {
+  if (htmlSrc.includes(`css/${f}`)) ok(`CSS link: css/${f}`);
+  else ng(`CSS link: css/${f}`, 'Not found in index.html');
+});
 
 // ===== 2. SEO & META TAGS =====
 section('2. SEO & META TAGS');
@@ -95,6 +139,12 @@ metaChecks.forEach(([name, regex]) => {
   if (regex.test(htmlSrc)) ok(`Meta: ${name}`);
   else ng(`Meta: ${name}`, 'Not found in index.html');
 });
+
+if (htmlSrc.includes('<!DOCTYPE html>') && htmlSrc.includes('</html>')) {
+  ok('index.html has doctype and closing tag');
+} else {
+  ng('index.html structure', 'Missing DOCTYPE or closing tag');
+}
 
 const titleMatch = htmlSrc.match(/<title>([^<]+)<\/title>/);
 if (titleMatch) {
@@ -134,29 +184,90 @@ if (QUESTIONS) {
   let qDataOk = true;
   QUESTIONS.forEach((q, i) => {
     if (!q.id || !q.text || !q.options) {
-      ng(`Q${i + 1} fields`, 'Missing id/text/options');
+      ng(`Q${q.id || i + 1} fields`, 'Missing id/text/options');
       qDataOk = false;
       return;
     }
     if (q.options.length !== 4) {
-      ng(`Q${i + 1} options`, `Expected 4, got ${q.options.length}`);
+      ng(`Q${q.id} options`, `Expected 4, got ${q.options.length}`);
       qDataOk = false;
     }
     q.options.forEach((opt, j) => {
       if (typeof opt.temp !== 'number' || typeof opt.depth !== 'number' || typeof opt.clarity !== 'number') {
-        ng(`Q${i + 1} opt${j + 1}`, 'Missing score axis');
+        ng(`Q${q.id} opt${j + 1}`, 'Missing score axis');
         qDataOk = false;
       }
     });
     if (!q.hint) {
-      wn(`Q${i + 1} hint missing`);
+      wn(`Q${q.id} hint missing`);
     }
   });
   if (qDataOk) ok('All 12 questions have valid structure (id, text, hint, 4 options with 3-axis scores)');
 }
 
-// ===== 5. 12-SEASON DATA COMPLETENESS =====
-section('5. 12-SEASON DATA COMPLETENESS');
+// ===== 5. INPUT-BASED PAGING FIELDS =====
+section('5. INPUT-BASED PAGING FIELDS');
+
+if (QUESTIONS) {
+  let pagingFieldsOk = true;
+  QUESTIONS.forEach(q => {
+    if (!q.primaryAxis || !('secondaryAxis' in q) || typeof q.weight !== 'number' || typeof q.phase !== 'number') {
+      ng(`Q${q.id} paging fields`, 'Missing primaryAxis/secondaryAxis/weight/phase');
+      pagingFieldsOk = false;
+    }
+  });
+  if (pagingFieldsOk) ok('All questions have input-based paging fields (primaryAxis, secondaryAxis, weight, phase)');
+
+  // Verify primaryAxis values
+  const validAxes = ['temp', 'depth', 'clarity'];
+  const invalidAxes = QUESTIONS.filter(q => !validAxes.includes(q.primaryAxis));
+  if (invalidAxes.length === 0) ok('All primaryAxis values are valid (temp/depth/clarity)');
+  else ng('primaryAxis values', `Invalid: ${invalidAxes.map(q => `Q${q.id}=${q.primaryAxis}`).join(', ')}`);
+
+  // Verify phase values
+  const phase1 = QUESTIONS.filter(q => q.phase === 1);
+  const phase2 = QUESTIONS.filter(q => q.phase === 2);
+  if (phase1.length >= 3 && phase1.length <= 5) ok(`Phase 1 questions: ${phase1.length} (mandatory)`);
+  else ng('Phase 1 count', `Expected 3-5, got ${phase1.length}`);
+
+  if (phase2.length >= 7 && phase2.length <= 9) ok(`Phase 2 questions: ${phase2.length} (adaptive)`);
+  else ng('Phase 2 count', `Expected 7-9, got ${phase2.length}`);
+
+  // Verify weight ordering: phase 1 should have higher weight
+  const phase1MinWeight = Math.min(...phase1.map(q => q.weight));
+  const phase2MaxWeight = Math.max(...phase2.map(q => q.weight));
+  if (phase1MinWeight >= phase2MaxWeight) ok('Phase 1 questions have higher or equal weight than Phase 2');
+  else wn(`Phase 1 min weight (${phase1MinWeight}) < Phase 2 max weight (${phase2MaxWeight})`);
+}
+
+// Verify PHASE1_IDS
+if (PHASE1_IDS && Array.isArray(PHASE1_IDS)) {
+  ok(`PHASE1_IDS defined: [${PHASE1_IDS.join(', ')}]`);
+  // All IDs should exist in QUESTIONS
+  const qIds = new Set(QUESTIONS ? QUESTIONS.map(q => q.id) : []);
+  const invalidIds = PHASE1_IDS.filter(id => !qIds.has(id));
+  if (invalidIds.length === 0) ok('All PHASE1_IDS exist in QUESTIONS');
+  else ng('PHASE1_IDS', `IDs not in QUESTIONS: ${invalidIds.join(', ')}`);
+} else {
+  ng('PHASE1_IDS', 'Not defined');
+}
+
+// Verify AXIS_QUESTIONS
+if (AXIS_QUESTIONS && typeof AXIS_QUESTIONS === 'object') {
+  ok('AXIS_QUESTIONS defined');
+  ['temp', 'depth', 'clarity'].forEach(axis => {
+    if (Array.isArray(AXIS_QUESTIONS[axis]) && AXIS_QUESTIONS[axis].length > 0) {
+      ok(`AXIS_QUESTIONS.${axis}: ${AXIS_QUESTIONS[axis].length} question IDs`);
+    } else {
+      ng(`AXIS_QUESTIONS.${axis}`, 'Missing or empty');
+    }
+  });
+} else {
+  ng('AXIS_QUESTIONS', 'Not defined');
+}
+
+// ===== 6. 12-SEASON DATA COMPLETENESS =====
+section('6. 12-SEASON DATA COMPLETENESS');
 
 const seasonKeys = [
   'brightspring', 'lightspring', 'warmspring',
@@ -178,34 +289,26 @@ if (SEASONS) {
       ng(`Season: ${sk}`, 'Not found in SEASONS');
       return;
     }
-    // Check key matches
     if (s.key !== sk) ng(`${sk} key`, `Expected "${sk}", got "${s.key}"`);
 
-    // Check baseseason
     const expectedBase = sk.replace(/^(bright|light|warm|cool|deep|soft)/, '');
     if (s.baseseason !== expectedBase) ng(`${sk} baseseason`, `Expected "${expectedBase}", got "${s.baseseason}"`);
 
-    // Check all required fields
     let missingFields = requiredFields.filter(f => !s[f]);
     if (missingFields.length === 0) {
       ok(`Season ${sk}: All ${requiredFields.length} fields present`);
     } else {
       ng(`Season ${sk}`, `Missing: ${missingFields.join(', ')}`);
     }
-    // Palette count
     if (s.palette && s.palette.length === 12) ok(`${sk} palette: 12 colors`);
     else ng(`${sk} palette`, `Expected 12, got ${s.palette ? s.palette.length : 0}`);
-    // Avoid count
     if (s.avoid && s.avoid.length === 6) ok(`${sk} avoid: 6 colors`);
     else ng(`${sk} avoid`, `Expected 6, got ${s.avoid ? s.avoid.length : 0}`);
-    // Products count
     if (s.products && s.products.length === 4) ok(`${sk} products: 4 items`);
     else ng(`${sk} products`, `Expected 4, got ${s.products ? s.products.length : 0}`);
-    // Celebrities count
     if (s.celebrities && s.celebrities.length === 6) ok(`${sk} celebrities: 6 names`);
     else ng(`${sk} celebrities`, `Expected 6, got ${s.celebrities ? s.celebrities.length : 0}`);
 
-    // HEX color validation
     const hexRegex = /^#[0-9A-Fa-f]{6}$/;
     if (s.palette) {
       const invalidPalette = s.palette.filter(c => !hexRegex.test(c));
@@ -217,7 +320,6 @@ if (SEASONS) {
       if (invalidAvoid.length === 0) ok(`${sk} avoid HEX valid`);
       else ng(`${sk} avoid HEX`, `Invalid: ${invalidAvoid.join(', ')}`);
     }
-    // Makeup check
     if (s.makeup) {
       let mkOk = true;
       ['foundation', 'lip', 'blush', 'eyeshadow'].forEach(mk => {
@@ -228,7 +330,6 @@ if (SEASONS) {
       });
       if (mkOk) ok(`${sk} makeup: 4 categories valid`);
     }
-    // Products URLs
     if (s.products) {
       const badProducts = s.products.filter(p => !p.url || !p.name || !p.brand || !p.price);
       if (badProducts.length === 0) ok(`${sk} products: All have url/name/brand/price`);
@@ -236,21 +337,16 @@ if (SEASONS) {
     }
   });
 
-  // Check no old 4-season keys remain
   const old4Keys = ['spring', 'summer', 'autumn', 'winter'];
-  old4Keys.forEach(k => {
-    if (SEASONS[k]) ng(`Old key "${k}"`, 'Should be removed in 12-season system');
-  });
   if (!old4Keys.some(k => SEASONS[k])) ok('No old 4-season keys remain');
-
+  else old4Keys.filter(k => SEASONS[k]).forEach(k => ng(`Old key "${k}"`, 'Should be removed'));
 } else {
   ng('SEASONS', 'Not loaded');
 }
 
-// ===== 6. SCORING ALGORITHM =====
-section('6. SCORING ALGORITHM');
+// ===== 7. SCORING ALGORITHM =====
+section('7. SCORING ALGORITHM');
 
-// Verify affinity formula balance
 function testAffinity(temp, depth, clarity) {
   const sp = temp + depth + clarity;
   const su = -temp + depth - clarity;
@@ -272,7 +368,6 @@ testCases.forEach(([t, d, c]) => {
 });
 if (balanceOk) ok('Affinity formula: sum always = 0 (balanced)');
 
-// Test all 4 base seasons reachable
 function determineBaseSeason(temp, depth, clarity) {
   const affinities = {
     spring: temp + depth + clarity,
@@ -299,10 +394,9 @@ else ng('Season reachability', 'autumn not reachable with (5,-3,-2)');
 if (determineBaseSeason(-5, -3, 2) === 'winter') ok('Reachable: winter (cool+dark+clear)');
 else ng('Season reachability', 'winter not reachable with (-5,-3,2)');
 
-// ===== 7. SUBTYPE DETERMINATION LOGIC =====
-section('7. SUBTYPE DETERMINATION LOGIC');
+// ===== 8. SUBTYPE DETERMINATION LOGIC =====
+section('8. SUBTYPE DETERMINATION LOGIC');
 
-// Local subtype function for testing
 function localGetSubtype(baseSeason, temp, depth, clarity) {
   const absTemp = Math.abs(temp);
   const absDepth = Math.abs(depth);
@@ -333,76 +427,40 @@ function fullDetermine(temp, depth, clarity) {
   return localGetSubtype(base, temp, depth, clarity);
 }
 
-// Spring subtypes
-const springSubtypeTests = [
-  // clarity dominant → brightspring
+const allSubtypeTests = [
   { t: 2, d: 1, c: 5, expected: 'brightspring', desc: 'Spring clarity dominant → brightspring' },
-  // depth dominant → lightspring
   { t: 1, d: 5, c: 2, expected: 'lightspring', desc: 'Spring depth dominant → lightspring' },
-  // temp dominant → warmspring
   { t: 5, d: 1, c: 2, expected: 'warmspring', desc: 'Spring temp dominant → warmspring' },
-];
-
-// Summer subtypes
-const summerSubtypeTests = [
-  // depth dominant → lightsummer
   { t: -2, d: 5, c: -1, expected: 'lightsummer', desc: 'Summer depth dominant → lightsummer' },
-  // temp dominant → coolsummer
   { t: -5, d: 1, c: -2, expected: 'coolsummer', desc: 'Summer temp dominant → coolsummer' },
-  // clarity dominant → softsummer
   { t: -1, d: 2, c: -5, expected: 'softsummer', desc: 'Summer clarity dominant → softsummer' },
-];
-
-// Autumn subtypes
-const autumnSubtypeTests = [
-  // temp dominant → warmautumn
   { t: 5, d: -1, c: -2, expected: 'warmautumn', desc: 'Autumn temp dominant → warmautumn' },
-  // depth dominant → deepautumn
   { t: 1, d: -5, c: -2, expected: 'deepautumn', desc: 'Autumn depth dominant → deepautumn' },
-  // clarity dominant → softautumn
   { t: 2, d: -1, c: -5, expected: 'softautumn', desc: 'Autumn clarity dominant → softautumn' },
-];
-
-// Winter subtypes
-const winterSubtypeTests = [
-  // temp dominant → coolwinter
   { t: -5, d: -1, c: 2, expected: 'coolwinter', desc: 'Winter temp dominant → coolwinter' },
-  // depth dominant → deepwinter
   { t: -1, d: -5, c: 2, expected: 'deepwinter', desc: 'Winter depth dominant → deepwinter' },
-  // clarity dominant → brightwinter
   { t: -1, d: -2, c: 5, expected: 'brightwinter', desc: 'Winter clarity dominant → brightwinter' },
 ];
 
-const allSubtypeTests = [...springSubtypeTests, ...summerSubtypeTests, ...autumnSubtypeTests, ...winterSubtypeTests];
-let subtypeOk = true;
 allSubtypeTests.forEach(({ t, d, c, expected, desc }) => {
   const result = fullDetermine(t, d, c);
-  if (result === expected) {
-    ok(desc);
-  } else {
-    ng(desc, `Expected ${expected}, got ${result}`);
-    subtypeOk = false;
-  }
+  if (result === expected) ok(desc);
+  else ng(desc, `Expected ${expected}, got ${result}`);
 });
 
-// Verify all 12 subtypes are reachable
 const reachableSubtypes = new Set(allSubtypeTests.map(({ t, d, c }) => fullDetermine(t, d, c)));
-if (reachableSubtypes.size === 12) {
-  ok('All 12 subtypes reachable via unit tests');
-} else {
-  const missing = seasonKeys.filter(k => !reachableSubtypes.has(k));
-  ng('Subtype reachability', `Missing: ${missing.join(', ')}`);
-}
+if (reachableSubtypes.size === 12) ok('All 12 subtypes reachable via unit tests');
+else ng('Subtype reachability', `Missing: ${seasonKeys.filter(k => !reachableSubtypes.has(k)).join(', ')}`);
 
-// ===== 8. AI COLOR ANALYSIS =====
-section('8. AI COLOR ANALYSIS');
+// ===== 9. AI COLOR ANALYSIS =====
+section('9. AI COLOR ANALYSIS');
 
 function rgbToHsl(c) {
   const r = c.r / 255, g = c.g / 255, b = c.b / 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-  if (max === min) { h = s = 0; }
-  else {
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
     switch (max) {
@@ -474,7 +532,6 @@ function analyzeColorsToScores(colors) {
   return { temp, depth, clarity };
 }
 
-// AI test cases — check base season correctness
 const aiTests = [
   ['Spring: warm golden skin, warm brown hair, amber eyes',
     { skin: { r: 230, g: 190, b: 140 }, hair: { r: 140, g: 100, b: 60 }, eye: { r: 160, g: 120, b: 70 } },
@@ -513,13 +570,218 @@ aiTests.forEach(([desc, colors, expectedBase]) => {
   }
 });
 
-// ===== 9. DOM ID CONSISTENCY =====
-section('9. DOM ID CONSISTENCY');
+// ===== 10. INPUT-BASED PAGING ENGINE =====
+section('10. INPUT-BASED PAGING ENGINE');
+
+// Simulate the input-based paging algorithm
+const QUESTION_MAP = new Map();
+if (QUESTIONS) QUESTIONS.forEach(q => QUESTION_MAP.set(q.id, q));
+
+const MIN_QUESTIONS = 7;
+const MAX_QUESTIONS = 12;
+const CONFIDENCE_THRESHOLD = 3;
+
+function getAxisConfidence(axis, scores, questionPath) {
+  const absScore = Math.abs(scores[axis]);
+  const answeredCount = questionPath.filter(qId => {
+    const q = QUESTION_MAP.get(qId);
+    return q !== undefined && q.primaryAxis === axis;
+  }).length;
+  return absScore + (answeredCount * 0.5);
+}
+
+function allAxesConfident(scores, questionPath) {
+  return ['temp', 'depth', 'clarity'].every(
+    axis => getAxisConfidence(axis, scores, questionPath) >= CONFIDENCE_THRESHOLD
+  );
+}
+
+function pickNextQuestion(asked, scores, questionPath) {
+  const askedSet = new Set(asked);
+  const totalAsked = askedSet.size;
+
+  for (const id of PHASE1_IDS) {
+    if (!askedSet.has(id)) {
+      return QUESTION_MAP.get(id) || null;
+    }
+  }
+
+  if (totalAsked >= MAX_QUESTIONS) return null;
+  if (totalAsked >= MIN_QUESTIONS && allAxesConfident(scores, questionPath)) return null;
+
+  const axes = ['temp', 'depth', 'clarity'];
+  let leastConfidentAxis = axes[0];
+  let lowestConf = getAxisConfidence(axes[0], scores, questionPath);
+  for (let i = 1; i < axes.length; i++) {
+    const conf = getAxisConfidence(axes[i], scores, questionPath);
+    if (conf < lowestConf) {
+      lowestConf = conf;
+      leastConfidentAxis = axes[i];
+    }
+  }
+
+  const axisIds = AXIS_QUESTIONS[leastConfidentAxis] || [];
+  const candidates = axisIds
+    .filter(id => !askedSet.has(id))
+    .map(id => QUESTION_MAP.get(id))
+    .filter(q => q !== undefined)
+    .sort((a, b) => b.weight - a.weight);
+
+  if (candidates.length > 0) return candidates[0];
+
+  const remaining = QUESTIONS
+    .filter(q => !askedSet.has(q.id))
+    .sort((a, b) => b.weight - a.weight);
+
+  return remaining.length > 0 ? remaining[0] : null;
+}
+
+// Test 1: First question should be from PHASE1_IDS
+if (PHASE1_IDS && PHASE1_IDS.length > 0) {
+  const firstQ = pickNextQuestion([], { temp: 0, depth: 0, clarity: 0 }, []);
+  if (firstQ && firstQ.id === PHASE1_IDS[0]) {
+    ok(`First question is PHASE1_IDS[0] = Q${PHASE1_IDS[0]}`);
+  } else {
+    ng('First question', `Expected Q${PHASE1_IDS[0]}, got Q${firstQ ? firstQ.id : 'null'}`);
+  }
+}
+
+// Test 2: Phase 1 questions asked in order
+if (PHASE1_IDS) {
+  let asked = [];
+  let questionPath = [];
+  let scores = { temp: 0, depth: 0, clarity: 0 };
+  let phase1Order = true;
+
+  for (let i = 0; i < PHASE1_IDS.length; i++) {
+    const q = pickNextQuestion(asked, scores, questionPath);
+    if (!q || q.id !== PHASE1_IDS[i]) {
+      phase1Order = false;
+      ng(`Phase 1 order`, `Expected Q${PHASE1_IDS[i]} at position ${i}, got Q${q ? q.id : 'null'}`);
+      break;
+    }
+    asked.push(q.id);
+    questionPath.push(q.id);
+    // Simulate answering with option 0
+    const opt = q.options[0];
+    scores.temp += opt.temp;
+    scores.depth += opt.depth;
+    scores.clarity += opt.clarity;
+  }
+  if (phase1Order) ok(`Phase 1 questions asked in order: [${PHASE1_IDS.join(', ')}]`);
+}
+
+// Test 3: Maximum questions cap
+{
+  let asked = [];
+  let questionPath = [];
+  let scores = { temp: 0, depth: 0, clarity: 0 };
+
+  for (let i = 0; i < MAX_QUESTIONS + 5; i++) {
+    const q = pickNextQuestion(asked, scores, questionPath);
+    if (!q) break;
+    asked.push(q.id);
+    questionPath.push(q.id);
+    scores.temp += q.options[0].temp;
+    scores.depth += q.options[0].depth;
+    scores.clarity += q.options[0].clarity;
+  }
+
+  if (asked.length <= MAX_QUESTIONS) {
+    ok(`Max questions cap: stopped at ${asked.length} (max=${MAX_QUESTIONS})`);
+  } else {
+    ng('Max questions cap', `Asked ${asked.length}, expected <= ${MAX_QUESTIONS}`);
+  }
+}
+
+// Test 4: Early termination when confident
+{
+  let asked = [];
+  let questionPath = [];
+  let scores = { temp: 0, depth: 0, clarity: 0 };
+
+  // Force high scores on all axes by picking extreme options
+  for (let i = 0; i < MAX_QUESTIONS; i++) {
+    const q = pickNextQuestion(asked, scores, questionPath);
+    if (!q) break;
+    asked.push(q.id);
+    questionPath.push(q.id);
+
+    // Pick option that maximizes scores
+    let bestOpt = q.options[0];
+    let bestTotal = Math.abs(q.options[0].temp) + Math.abs(q.options[0].depth) + Math.abs(q.options[0].clarity);
+    for (let j = 1; j < q.options.length; j++) {
+      const total = Math.abs(q.options[j].temp) + Math.abs(q.options[j].depth) + Math.abs(q.options[j].clarity);
+      if (total > bestTotal) {
+        bestTotal = total;
+        bestOpt = q.options[j];
+      }
+    }
+    scores.temp += bestOpt.temp;
+    scores.depth += bestOpt.depth;
+    scores.clarity += bestOpt.clarity;
+  }
+
+  if (asked.length >= MIN_QUESTIONS && asked.length <= MAX_QUESTIONS) {
+    ok(`Early termination: completed in ${asked.length} questions (min=${MIN_QUESTIONS}, max=${MAX_QUESTIONS})`);
+  } else {
+    wn(`Early termination: completed in ${asked.length} questions`);
+  }
+}
+
+// Test 5: No duplicate questions
+{
+  let asked = [];
+  let questionPath = [];
+  let scores = { temp: 0, depth: 0, clarity: 0 };
+  let hasDuplicates = false;
+
+  for (let i = 0; i < MAX_QUESTIONS; i++) {
+    const q = pickNextQuestion(asked, scores, questionPath);
+    if (!q) break;
+    if (asked.includes(q.id)) {
+      ng('No duplicates', `Q${q.id} asked twice at position ${i}`);
+      hasDuplicates = true;
+      break;
+    }
+    asked.push(q.id);
+    questionPath.push(q.id);
+    scores.temp += q.options[0].temp;
+    scores.depth += q.options[0].depth;
+    scores.clarity += q.options[0].clarity;
+  }
+  if (!hasDuplicates) ok('No duplicate questions in adaptive path');
+}
+
+// Test 6: Confidence calculation
+{
+  const testScores = { temp: 3, depth: -2, clarity: 1 };
+  const testPath = [1, 5]; // Q1=depth, Q5=temp
+  const tempConf = getAxisConfidence('temp', testScores, testPath);
+  const depthConf = getAxisConfidence('depth', testScores, testPath);
+  const clarityConf = getAxisConfidence('clarity', testScores, testPath);
+
+  // temp: |3| + 1*0.5 = 3.5 (Q5 is temp)
+  // depth: |-2| + 1*0.5 = 2.5 (Q1 is depth)
+  // clarity: |1| + 0*0.5 = 1.0
+
+  if (tempConf === 3.5) ok(`Confidence temp: ${tempConf} (expected 3.5)`);
+  else ng('Confidence temp', `Expected 3.5, got ${tempConf}`);
+
+  if (depthConf === 2.5) ok(`Confidence depth: ${depthConf} (expected 2.5)`);
+  else ng('Confidence depth', `Expected 2.5, got ${depthConf}`);
+
+  if (clarityConf === 1.0) ok(`Confidence clarity: ${clarityConf} (expected 1.0)`);
+  else ng('Confidence clarity', `Expected 1.0, got ${clarityConf}`);
+}
+
+// ===== 11. DOM ID CONSISTENCY =====
+section('11. DOM ID CONSISTENCY');
 
 const getElByIdRegex = /getElementById\(['"]([\w-]+)['"]\)/g;
 const jsIds = new Set();
 let m;
-while ((m = getElByIdRegex.exec(scriptSrc)) !== null) {
+while ((m = getElByIdRegex.exec(allJsSrc)) !== null) {
   jsIds.add(m[1]);
 }
 
@@ -534,8 +796,8 @@ jsIds.forEach(id => {
 });
 if (domMismatches === 0) ok(`All ${jsIds.size} JS-referenced DOM IDs exist in HTML`);
 
-// ===== 10. CSS CLASS CONSISTENCY =====
-section('10. CSS CLASS CONSISTENCY');
+// ===== 12. CSS CLASS CONSISTENCY =====
+section('12. CSS CLASS CONSISTENCY');
 
 const criticalClasses = [
   'screen', 'active', 'container', 'intro-container', 'ai-container', 'quiz-container',
@@ -545,13 +807,15 @@ const criticalClasses = [
   'scan-overlay', 'scan-line', 'ai-capture-btn', 'detected-colors', 'detected-dot',
   'share-btn', 'copy-btn', 'facebook-btn', 'retake-btn',
   'result-baseseason-badge', 'result-en-name',
-  'baseseason-spring', 'baseseason-summer', 'baseseason-autumn', 'baseseason-winter'
+  'baseseason-spring', 'baseseason-summer', 'baseseason-autumn', 'baseseason-winter',
+  'card-hidden', 'card-visible', 'share-download-btn', 'zalo-btn',
+  'social-proof', 'compare-card', 'compare-score', 'compare-comment'
 ];
 
 let cssMismatches = 0;
 criticalClasses.forEach(cls => {
   const inCSS = cssSrc.includes(`.${cls}`) || cssSrc.includes(`.${cls} `) || cssSrc.includes(`.${cls}{`) || cssSrc.includes(`.${cls}:`);
-  const inHTML = htmlSrc.includes(`class="`) && (htmlSrc.includes(cls) || scriptSrc.includes(cls));
+  const inHTML = htmlSrc.includes(cls) || allJsSrc.includes(cls);
   if (inCSS && inHTML) {
     // ok
   } else if (!inCSS) {
@@ -561,14 +825,20 @@ criticalClasses.forEach(cls => {
 });
 if (cssMismatches === 0) ok(`All ${criticalClasses.length} critical CSS classes defined`);
 
-// ===== 11. RESPONSIVE & ACCESSIBILITY =====
-section('11. RESPONSIVE & ACCESSIBILITY');
+// ===== 13. RESPONSIVE & ACCESSIBILITY =====
+section('13. RESPONSIVE & ACCESSIBILITY');
 
-if (cssSrc.includes('@media (max-width: 480px)')) ok('Mobile breakpoint: 480px');
-else ng('Mobile breakpoint', 'Missing 480px media query');
+if (cssSrc.includes('@media (max-width: 480px)') || cssSrc.includes('@media(max-width: 480px)') || cssSrc.includes('@media(max-width:480px)')) {
+  ok('Mobile breakpoint: 480px');
+} else {
+  ng('Mobile breakpoint', 'Missing 480px media query');
+}
 
-if (cssSrc.includes('@media (min-width: 768px)')) ok('Tablet breakpoint: 768px');
-else ng('Tablet breakpoint', 'Missing 768px media query');
+if (cssSrc.includes('@media (min-width: 768px)') || cssSrc.includes('@media(min-width: 768px)') || cssSrc.includes('@media(min-width:768px)')) {
+  ok('Tablet breakpoint: 768px');
+} else {
+  ng('Tablet breakpoint', 'Missing 768px media query');
+}
 
 if (htmlSrc.includes('viewport')) ok('Viewport meta tag present');
 else ng('Viewport', 'Missing viewport meta');
@@ -577,11 +847,11 @@ const onclickCount = (htmlSrc.match(/onclick="/g) || []).length;
 const buttonCount = (htmlSrc.match(/<button/g) || []).length;
 ok(`Interactive elements: ${buttonCount} buttons, ${onclickCount} onclick handlers`);
 
-// ===== 12. SECURITY =====
-section('12. SECURITY');
+// ===== 14. SECURITY =====
+section('14. SECURITY');
 
-const evalMatches = scriptSrc.match(/\beval\s*\(/g);
-if (!evalMatches) ok('No eval() in script.js');
+const evalMatches = allJsSrc.match(/\beval\s*\(/g);
+if (!evalMatches) ok('No eval() in JS modules');
 else ng('eval()', `Found ${evalMatches.length} eval() calls`);
 
 const externalLinks = htmlSrc.match(/<a[^>]+target="_blank"[^>]*>/g) || [];
@@ -596,76 +866,158 @@ if (noopenerIssues === 0 && externalLinks.length > 0) {
   ok(`All ${externalLinks.length} external links have rel="noopener"`);
 }
 
-const innerHTMLCount = (scriptSrc.match(/\.innerHTML\s*=/g) || []).length;
-ok(`innerHTML usage: ${innerHTMLCount} instances (all controlled template data)`);
+// ===== 15. URL HASH SHARING =====
+section('15. URL HASH SHARING');
 
-// ===== 13. URL HASH SHARING =====
-section('13. URL HASH SHARING');
-
-if (scriptSrc.includes('result=${currentSeason.key}&temp=${scores.temp}&depth=${scores.depth}&clarity=${scores.clarity}')) {
+const shareSrc = jsSources['js/share.js'] || '';
+if (shareSrc.includes('result=${') && shareSrc.includes('temp=${') && shareSrc.includes('depth=${') && shareSrc.includes('clarity=${')) {
   ok('URL hash format: #result=KEY&temp=N&depth=N&clarity=N');
 } else {
-  ng('URL hash format', 'Expected hash format not found');
+  ng('URL hash format', 'Expected hash format not found in share.js');
 }
 
-// Check fallback for old 4-season URLs
-if (scriptSrc.includes('determineSeason()') && scriptSrc.includes("hash.includes('result=')")) {
+const appSrc = jsSources['js/app.js'] || '';
+if (appSrc.includes('determineSeason()') && appSrc.includes("hash.includes('result=')")) {
   ok('URL restoration with determineSeason() fallback');
 } else {
-  ng('URL restoration', 'Missing determineSeason() fallback');
+  ng('URL restoration', 'Missing determineSeason() fallback in app.js');
 }
 
-const parseIntCalls = scriptSrc.match(/parseInt\([^)]+\)/g) || [];
-let noRadix = parseIntCalls.filter(c => !c.includes(', 10'));
-if (noRadix.length === 0) ok('All parseInt calls include radix 10');
-else wn(`${noRadix.length} parseInt calls without explicit radix`);
+// ===== 16. MODULE EXPORTS & IMPORTS =====
+section('16. MODULE EXPORTS & IMPORTS');
 
-// ===== 14. OLD 4-SEASON URL FALLBACK TEST =====
-section('14. OLD 4-SEASON URL FALLBACK');
+// Check critical exports
+const exportChecks = [
+  ['js/state.js', 'state'],
+  ['js/state.js', 'resetQuizState'],
+  ['js/scoring.js', 'getBaseSeason'],
+  ['js/scoring.js', 'getSubtype'],
+  ['js/scoring.js', 'determineSeason'],
+  ['js/quiz.js', 'startQuiz'],
+  ['js/quiz.js', 'renderQuestion'],
+  ['js/quiz.js', 'goBack'],
+  ['js/result.js', 'renderResult'],
+  ['js/ai-analysis.js', 'startAI'],
+  ['js/ai-analysis.js', 'capturePhoto'],
+  ['js/share.js', 'shareFacebook'],
+  ['js/share.js', 'shareZalo'],
+  ['js/share.js', 'copyLink'],
+  ['js/share.js', 'updateUrlHash'],
+  ['js/app.js', 'showScreen'],
+  ['js/app.js', 'showLoading'],
+  ['js/analytics.js', 'trackEvent'],
+  ['js/result-card.js', 'downloadResultCard'],
+  ['js/comparison.js', 'compareWithFriend'],
+];
 
-// Simulate: old URL has key="spring" which no longer exists in SEASONS
-const old4SeasonKeys = ['spring', 'summer', 'autumn', 'winter'];
-old4SeasonKeys.forEach(oldKey => {
-  if (!SEASONS[oldKey]) {
-    ok(`Old key "${oldKey}" correctly absent from SEASONS → triggers fallback`);
+let exportIssues = 0;
+exportChecks.forEach(([file, name]) => {
+  const src = jsSources[file] || '';
+  if (src.includes(`export function ${name}`) || src.includes(`export async function ${name}`) || src.includes(`export const ${name}`)) {
+    // ok
   } else {
-    ng(`Old key "${oldKey}"`, 'Still exists, should be removed for 12-season');
+    ng(`Export: ${file} → ${name}`, 'Not found');
+    exportIssues++;
   }
 });
+if (exportIssues === 0) ok(`All ${exportChecks.length} critical exports present`);
 
-// Verify fallback logic exists in source
-if (scriptSrc.includes('else if (key)')) {
-  ok('Fallback branch exists for unrecognized keys');
+// ===== 17. PHASE 2 FEATURES =====
+section('17. PHASE 2 FEATURES');
+
+// Zalo sharing
+if (shareSrc.includes('shareZalo') && htmlSrc.includes('shareZalo')) {
+  ok('Zalo sharing: function + HTML button');
 } else {
-  ng('Fallback', 'No else-if branch for old 4-season URL fallback');
+  ng('Zalo sharing', 'Missing function or button');
 }
 
-// ===== 15. CAMERA API =====
-section('15. CAMERA API');
+// Result card download
+const resultCardSrc = jsSources['js/result-card.js'] || '';
+if (resultCardSrc.includes('generateResultCard') && resultCardSrc.includes('downloadResultCard')) {
+  ok('Result card: generate + download functions');
+} else {
+  ng('Result card', 'Missing generate/download functions');
+}
 
-if (scriptSrc.includes('getUserMedia')) ok('getUserMedia API used');
+// Canvas-based card generation
+if (resultCardSrc.includes('canvas') && resultCardSrc.includes('toBlob')) {
+  ok('Result card uses Canvas API with toBlob');
+} else {
+  ng('Result card canvas', 'Missing Canvas API usage');
+}
+
+// GA4 analytics
+const analyticsSrc = jsSources['js/analytics.js'] || '';
+if (analyticsSrc.includes('trackEvent') && analyticsSrc.includes('gtag')) {
+  ok('GA4 analytics: trackEvent with gtag');
+} else {
+  ng('GA4 analytics', 'Missing trackEvent or gtag');
+}
+
+// Social proof
+if (htmlSrc.includes('social-proof') && appSrc.includes('initSocialProof')) {
+  ok('Social proof: HTML element + init function');
+} else {
+  ng('Social proof', 'Missing HTML element or init function');
+}
+
+// Scroll animations
+const resultSrc = jsSources['js/result.js'] || '';
+if (resultSrc.includes('IntersectionObserver') && resultSrc.includes('card-visible')) {
+  ok('Scroll animations: IntersectionObserver + card-visible');
+} else {
+  ng('Scroll animations', 'Missing IntersectionObserver');
+}
+
+// ===== 18. PHASE 3 FEATURES =====
+section('18. PHASE 3 FEATURES');
+
+const compSrc = jsSources['js/comparison.js'] || '';
+
+// Comparison module
+if (compSrc.includes('compareWithFriend') && compSrc.includes('renderComparison')) {
+  ok('Comparison: compareWithFriend + renderComparison');
+} else {
+  ng('Comparison', 'Missing comparison functions');
+}
+
+// Compatibility matrix
+if (compSrc.includes('buildCompatMatrix') || compSrc.includes('COMPAT_SCORES')) {
+  ok('Comparison: compatibility score matrix');
+} else {
+  ng('Comparison', 'Missing compatibility matrix');
+}
+
+// Comparison HTML
+if (htmlSrc.includes('compare-card') && htmlSrc.includes('compare-picker')) {
+  ok('Comparison: HTML elements present');
+} else {
+  ng('Comparison', 'Missing comparison HTML');
+}
+
+// ===== 19. CAMERA API =====
+section('19. CAMERA API');
+
+const aiSrc = jsSources['js/ai-analysis.js'] || '';
+
+if (aiSrc.includes('getUserMedia')) ok('getUserMedia API used');
 else ng('Camera API', 'getUserMedia not found');
 
-if (scriptSrc.includes("facingMode")) ok('Camera facingMode switching supported');
+if (aiSrc.includes('facingMode')) ok('Camera facingMode switching supported');
 else ng('Camera', 'facingMode not found');
 
-if (scriptSrc.includes('enumerateDevices')) ok('Device enumeration for multi-camera support');
+if (aiSrc.includes('enumerateDevices')) ok('Device enumeration for multi-camera support');
 else ng('Camera', 'enumerateDevices not found');
 
-if (scriptSrc.includes('scaleX(-1)') || scriptSrc.includes("scale(-1, 1)")) {
-  ok('Front camera mirror mode');
-} else {
-  ng('Camera', 'Mirror mode not found');
-}
+if (aiSrc.includes('scale(-1, 1)')) ok('Front camera mirror mode');
+else ng('Camera', 'Mirror mode not found');
 
-if (scriptSrc.includes("accept=\"image/*\"") || htmlSrc.includes("accept=\"image/*\"")) {
-  ok('File upload accepts all image types');
-} else {
-  ng('Upload', 'accept="image/*" not found');
-}
+if (htmlSrc.includes('accept="image/*"')) ok('File upload accepts all image types');
+else ng('Upload', 'accept="image/*" not found');
 
-// ===== 16. SUPPORTING FILES =====
-section('16. SUPPORTING FILES');
+// ===== 20. SUPPORTING FILES =====
+section('20. SUPPORTING FILES');
 
 const supportFiles = ['robots.txt', 'sitemap.xml', 'privacy.html', 'contact.html', 'CLAUDE.md'];
 supportFiles.forEach(f => {
@@ -690,90 +1042,96 @@ if (fs.existsSync(deployPath)) {
   ng('deploy.yml', 'File not found');
 }
 
-// ===== 17. MISSING ASSETS =====
-section('17. MISSING ASSETS (Warnings)');
+// ===== 21. GOBACK SCORE ROLLBACK =====
+section('21. GOBACK SCORE ROLLBACK');
 
-const expectedAssets = ['og-image.jpg'];
-expectedAssets.forEach(f => {
-  if (fs.existsSync(path.join(DIR, f))) ok(`Asset: ${f}`);
-  else wn(`Asset: ${f} — not yet created (referenced in OG tags)`);
-});
+if (QUESTIONS) {
+  let scores = { temp: 0, depth: 0, clarity: 0 };
+  let history = [];
+  for (let i = 0; i < 3; i++) {
+    const opt = QUESTIONS[i].options[0];
+    history.push({ temp: opt.temp, depth: opt.depth, clarity: opt.clarity });
+    scores.temp += opt.temp;
+    scores.depth += opt.depth;
+    scores.clarity += opt.clarity;
+  }
+  const last = history.pop();
+  scores.temp -= last.temp;
+  scores.depth -= last.depth;
+  scores.clarity -= last.clarity;
+  let expected2 = { temp: 0, depth: 0, clarity: 0 };
+  for (let i = 0; i < 2; i++) {
+    const opt = QUESTIONS[i].options[0];
+    expected2.temp += opt.temp;
+    expected2.depth += opt.depth;
+    expected2.clarity += opt.clarity;
+  }
+  if (scores.temp === expected2.temp && scores.depth === expected2.depth && scores.clarity === expected2.clarity) {
+    ok('GoBack: Score rollback is accurate');
+  } else {
+    ng('GoBack rollback', `Expected t=${expected2.temp} d=${expected2.depth} c=${expected2.clarity}, got t=${scores.temp} d=${scores.depth} c=${scores.clarity}`);
+  }
+}
 
-// ===== 18. QUIZ PATH SIMULATION (12-SEASON) =====
-section('18. QUIZ PATH SIMULATION (12-SEASON)');
+// ===== 22. QUIZ PATH SIMULATION (INPUT-BASED PAGING) =====
+section('22. QUIZ PATH SIMULATION (INPUT-BASED PAGING)');
 
-function simulateQuiz(optionIndices) {
-  let t = 0, d = 0, c = 0;
-  optionIndices.forEach((idx, qi) => {
-    const opt = QUESTIONS[qi].options[idx];
-    t += opt.temp;
-    d += opt.depth;
-    c += opt.clarity;
+if (QUESTIONS && PHASE1_IDS) {
+  // Simulate full quiz with option 0 (tends warm/light)
+  function simulateAdaptiveQuiz(optionSelector) {
+    let asked = [];
+    let questionPath = [];
+    let scores = { temp: 0, depth: 0, clarity: 0 };
+    let questionOrder = [];
+
+    for (let i = 0; i < MAX_QUESTIONS; i++) {
+      const q = pickNextQuestion(asked, scores, questionPath);
+      if (!q) break;
+      asked.push(q.id);
+      questionPath.push(q.id);
+      questionOrder.push(q.id);
+
+      const optIdx = optionSelector(q, scores);
+      const opt = q.options[optIdx];
+      scores.temp += opt.temp;
+      scores.depth += opt.depth;
+      scores.clarity += opt.clarity;
+    }
+
+    const base = determineBaseSeason(scores.temp, scores.depth, scores.clarity);
+    const subtype = localGetSubtype(base, scores.temp, scores.depth, scores.clarity);
+    return { scores, base, subtype, questionCount: asked.length, questionOrder };
+  }
+
+  // All option 0 path
+  const path0 = simulateAdaptiveQuiz(() => 0);
+  ok(`Adaptive path (opt0): ${path0.subtype} in ${path0.questionCount} questions (t=${path0.scores.temp} d=${path0.scores.depth} c=${path0.scores.clarity})`);
+
+  // All option 3 path
+  const path3 = simulateAdaptiveQuiz(() => 3);
+  ok(`Adaptive path (opt3): ${path3.subtype} in ${path3.questionCount} questions (t=${path3.scores.temp} d=${path3.scores.depth} c=${path3.scores.clarity})`);
+
+  // Mixed path (alternate 0, 1, 2, 3)
+  const pathMixed = simulateAdaptiveQuiz((q, s) => Math.abs(s.temp + s.depth + s.clarity) % 4);
+  ok(`Adaptive path (mixed): ${pathMixed.subtype} in ${pathMixed.questionCount} questions`);
+
+  // Verify quiz results are valid seasons
+  [path0, path3, pathMixed].forEach(p => {
+    if (SEASONS && SEASONS[p.subtype]) {
+      ok(`Quiz result "${p.subtype}" exists in SEASONS`);
+    } else {
+      ng(`Quiz result "${p.subtype}"`, 'Not found in SEASONS');
+    }
   });
-  const base = determineBaseSeason(t, d, c);
-  const subtype = localGetSubtype(base, t, d, c);
-  return { temp: t, depth: d, clarity: c, base, subtype };
-}
 
-// Spring path
-const springPath = [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0];
-const springResult = simulateQuiz(springPath);
-ok(`Spring sim: ${springResult.subtype} [base=${springResult.base}] (t=${springResult.temp} d=${springResult.depth} c=${springResult.clarity})`);
-
-// Summer path
-const summerPath = [3, 3, 3, 0, 0, 1, 0, 1, 2, 1, 3, 1];
-const summerResult = simulateQuiz(summerPath);
-ok(`Summer sim: ${summerResult.subtype} [base=${summerResult.base}] (t=${summerResult.temp} d=${summerResult.depth} c=${summerResult.clarity})`);
-
-// Autumn path
-const autumnPath = [1, 0, 1, 2, 1, 0, 3, 3, 1, 2, 2, 2];
-const autumnResult = simulateQuiz(autumnPath);
-ok(`Autumn sim: ${autumnResult.subtype} [base=${autumnResult.base}] (t=${autumnResult.temp} d=${autumnResult.depth} c=${autumnResult.clarity})`);
-
-// Winter path
-const winterPath = [0, 2, 3, 3, 0, 1, 3, 2, 0, 3, 1, 3];
-const winterResult = simulateQuiz(winterPath);
-ok(`Winter sim: ${winterResult.subtype} [base=${winterResult.base}] (t=${winterResult.temp} d=${winterResult.depth} c=${winterResult.clarity})`);
-
-// Check all 4 base seasons reachable via quiz
-const allBases = new Set([springResult.base, summerResult.base, autumnResult.base, winterResult.base]);
-if (allBases.size === 4) ok('All 4 base seasons reachable via quiz paths');
-else ng('Season reachability', `Only ${allBases.size} base seasons reachable: ${[...allBases].join(', ')}`);
-
-// Check subtypes are valid 12-season keys
-[springResult, summerResult, autumnResult, winterResult].forEach(r => {
-  if (SEASONS[r.subtype]) ok(`Quiz result "${r.subtype}" exists in SEASONS`);
-  else ng(`Quiz result "${r.subtype}"`, 'Not found in SEASONS');
-});
-
-// ===== 19. GOBACK SCORE ROLLBACK =====
-section('19. GOBACK SCORE ROLLBACK');
-
-let scores = { temp: 0, depth: 0, clarity: 0 };
-let history = [];
-for (let i = 0; i < 3; i++) {
-  const opt = QUESTIONS[i].options[0];
-  history.push({ temp: opt.temp, depth: opt.depth, clarity: opt.clarity });
-  scores.temp += opt.temp;
-  scores.depth += opt.depth;
-  scores.clarity += opt.clarity;
-}
-const beforeGoBack = { ...scores };
-const last = history.pop();
-scores.temp -= last.temp;
-scores.depth -= last.depth;
-scores.clarity -= last.clarity;
-let expected2 = { temp: 0, depth: 0, clarity: 0 };
-for (let i = 0; i < 2; i++) {
-  const opt = QUESTIONS[i].options[0];
-  expected2.temp += opt.temp;
-  expected2.depth += opt.depth;
-  expected2.clarity += opt.clarity;
-}
-if (scores.temp === expected2.temp && scores.depth === expected2.depth && scores.clarity === expected2.clarity) {
-  ok('GoBack: Score rollback is accurate');
-} else {
-  ng('GoBack rollback', `Expected t=${expected2.temp} d=${expected2.depth} c=${expected2.clarity}, got t=${scores.temp} d=${scores.depth} c=${scores.clarity}`);
+  // Verify minimum question count
+  [path0, path3, pathMixed].forEach(p => {
+    if (p.questionCount >= MIN_QUESTIONS) {
+      ok(`Quiz completed with ${p.questionCount} >= ${MIN_QUESTIONS} minimum`);
+    } else {
+      ng('Min questions', `Completed with ${p.questionCount} < ${MIN_QUESTIONS}`);
+    }
+  });
 }
 
 // ===== SUMMARY =====

@@ -182,7 +182,7 @@ ctx.fillRect(0, H - 6, W, 6);
 ctx.font = '500 14px Inter, Arial, sans-serif';
 ctx.textAlign = 'center';
 ctx.fillStyle = '#A09890';
-ctx.fillText('personal-color-test.pages.dev  ·  Miễn phí 100%  ·  12 câu hỏi + AI', W / 2, H - 22);
+ctx.fillText('personal-color-test-5dz.pages.dev  ·  Miễn phí 100%  ·  12 câu hỏi + AI', W / 2, H - 22);
 
 // ===== SAVE =====
 const buffer = canvas.toBuffer('image/jpeg', { quality: 0.92 });

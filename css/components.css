@@ -1,0 +1,390 @@
+/* ===== CTA BUTTON ===== */
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gradient);
+  color: var(--white);
+  border: none;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .25s;
+  box-shadow: 0 4px 20px rgba(201,149,107,.35);
+  font-family: var(--font);
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(201,149,107,.45);
+}
+
+.cta-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== TRACK BUTTONS ===== */
+.intro-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 8px;
+}
+
+.track-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 22px;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .25s;
+  text-align: left;
+  font-family: var(--font);
+  position: relative;
+  overflow: hidden;
+}
+
+.track-btn:hover {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.track-ai {
+  border-color: var(--rose);
+  background: var(--rose-lt);
+}
+
+.track-ai:hover {
+  border-color: var(--rose);
+  background: #FFE4EA;
+}
+
+.track-quiz:hover {
+  border-color: var(--gold);
+  background: var(--gold-lt);
+}
+
+.track-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.track-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+}
+
+.track-desc {
+  font-size: 13px;
+  color: var(--text-sub);
+  display: block;
+}
+
+.track-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: var(--gradient);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 50px;
+  letter-spacing: .5px;
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+
+.back-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.back-btn:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gradient);
+  border-radius: 50px;
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+  width: 0%;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-weight: 500;
+  text-align: right;
+}
+
+/* ===== OPTION BUTTON ===== */
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: left;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.option-btn:hover {
+  border-color: var(--gold);
+  background: var(--gold-lt);
+}
+
+.option-btn.selected {
+  border-color: var(--rose);
+  background: var(--rose-lt);
+}
+
+.option-btn:disabled {
+  pointer-events: none;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--gold-lt);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.option-btn.selected .option-letter {
+  background: var(--rose);
+  color: var(--white);
+}
+
+/* ===== CARD ===== */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* ===== BADGES ===== */
+.intro-badge {
+  display: inline-block;
+  background: var(--gradient);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 50px;
+  letter-spacing: .5px;
+  margin-bottom: 24px;
+}
+
+.result-badge {
+  display: inline-block;
+  background: var(--season-gradient);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 50px;
+  margin-bottom: 20px;
+}
+
+/* ===== SEASON CHIPS ===== */
+.season-chip {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.spring-chip { background: #FFF5E6; color: #D4880F; }
+.summer-chip { background: #EBF5FF; color: #4A8FD4; }
+.autumn-chip { background: #FFF0E6; color: #C4723A; }
+.winter-chip { background: #F0E8FF; color: #6B4CC4; }
+
+/* ===== FEATURE ITEMS ===== */
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.feature-icon {
+  font-size: 20px;
+}
+
+/* ===== SHARE BUTTONS ===== */
+.share-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.share-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: var(--font);
+  color: var(--text);
+}
+
+.share-btn:hover {
+  border-color: var(--season-primary);
+  background: var(--season-light);
+}
+
+.facebook-btn { color: #1877F2; }
+.facebook-btn:hover { background: #EBF3FF; border-color: #1877F2; }
+
+.zalo-btn { color: #0068FF; }
+.zalo-btn:hover { background: #E6F0FF; border-color: #0068FF; }
+
+.copy-btn:hover { background: var(--gold-lt); border-color: var(--gold); }
+
+.share-download-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--season-light);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: var(--font);
+  color: var(--text);
+}
+
+.share-download-btn:hover {
+  border-color: var(--season-primary);
+  background: var(--season-light);
+  transform: translateY(-1px);
+}
+
+/* ===== SCROLL ANIMATION ===== */
+.card-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.card-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* ===== AFFILIATE DISCLOSURE ===== */
+.affiliate-disclosure {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+/* ===== SOCIAL PROOF ===== */
+.social-proof {
+  font-size: 0.9rem;
+  color: var(--gold);
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+/* ===== RESPONSIVE — COMPONENTS ===== */
+@media (max-width: 480px) {
+  .cta-btn {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .track-btn {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .track-icon {
+    font-size: 24px;
+  }
+
+  .share-btns {
+    flex-direction: column;
+  }
+}

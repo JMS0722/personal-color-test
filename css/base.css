@@ -1,0 +1,89 @@
+/* ===== VARIABLES ===== */
+:root {
+  --gold: #C9956B;
+  --gold-lt: #FFF8EE;
+  --rose: #D4768A;
+  --rose-lt: #FFF0F3;
+  --bg: #FFFBF5;
+  --white: #FFFFFF;
+  --text: #2D2A26;
+  --text-sub: #6B6560;
+  --border: #E8E0D8;
+  --gradient: linear-gradient(135deg, #C9956B, #D4768A);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(201,149,107,.12);
+  --shadow-lg: 0 8px 32px rgba(201,149,107,.16);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Season theme (overridden dynamically) */
+  --season-primary: #C9956B;
+  --season-light: #FFF8EE;
+  --season-gradient: linear-gradient(135deg, #C9956B, #D4768A);
+}
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ===== SCREEN SYSTEM ===== */
+.screen {
+  display: none;
+  animation: fadeUp .45s ease both;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== FOOTER ===== */
+.site-footer {
+  text-align: center;
+  padding: 32px 20px;
+  font-size: 13px;
+  color: var(--text-sub);
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.footer-links a {
+  color: var(--text-sub);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--gold);
+}
+
+/* ===== RESPONSIVE — BASE ===== */
+@media (min-width: 768px) {
+  .container {
+    max-width: 600px;
+  }
+}

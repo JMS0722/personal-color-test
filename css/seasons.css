@@ -1,0 +1,15 @@
+/* ===== BASE SEASON BADGE ===== */
+.result-baseseason-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 16px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+  letter-spacing: .3px;
+}
+
+.baseseason-spring { background: #FFF5E6; color: #D4880F; }
+.baseseason-summer { background: #EBF5FF; color: #4A8FD4; }
+.baseseason-autumn { background: #FFF0E6; color: #C4723A; }
+.baseseason-winter { background: #F0E8FF; color: #6B4CC4; }
