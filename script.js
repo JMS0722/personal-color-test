@@ -904,9 +904,7 @@ function renderResult() {
   baseBadge.textContent = baseLabels[s.baseseason] || '';
   baseBadge.className = 'result-baseseason-badge baseseason-' + s.baseseason;
 
-  // Result header background
-  const header = document.getElementById('result-header');
-  header.style.background = `${s.light}`;
+  // Result header — gradient is set via CSS var(--season-gradient)
 
   // 3-Axis bar chart
   renderAxisChart();

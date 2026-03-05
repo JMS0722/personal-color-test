@@ -763,17 +763,46 @@ body {
 
 /* ===== RESULT SCREEN ===== */
 .result-container {
-  padding: 40px 20px 60px;
+  padding: 0 20px 60px;
 }
 
+/* Glassmorphism Result Header */
 .result-header {
   text-align: center;
-  margin-bottom: 32px;
+  padding: 48px 24px 36px;
+  margin: 0 -20px 32px;
+  background: var(--season-gradient);
+  border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.result-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.result-header::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  top: -40px;
+  right: -60px;
+  filter: blur(40px);
+}
+.result-header > * {
+  position: relative;
+  z-index: 1;
 }
 
 .result-badge {
   display: inline-block;
-  background: var(--season-gradient);
+  background: rgba(255,255,255,0.2);
   color: var(--white);
   font-size: 13px;
   font-weight: 600;
@@ -790,16 +819,17 @@ body {
 .result-season {
   font-size: 32px;
   font-weight: 800;
-  background: var(--season-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--white);
+  -webkit-text-fill-color: unset;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
   margin-bottom: 8px;
 }
 
 .result-subtitle {
   font-size: 16px;
-  color: var(--text-sub);
+  color: rgba(255,255,255,0.85);
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -815,27 +845,40 @@ body {
   letter-spacing: .3px;
 }
 
-.baseseason-spring { background: #FFF5E6; color: #D4880F; }
-.baseseason-summer { background: #EBF5FF; color: #4A8FD4; }
-.baseseason-autumn { background: #FFF0E6; color: #C4723A; }
-.baseseason-winter { background: #F0E8FF; color: #6B4CC4; }
+.baseseason-spring { background: rgba(255,255,255,0.25); color: #fff; }
+.baseseason-summer { background: rgba(255,255,255,0.25); color: #fff; }
+.baseseason-autumn { background: rgba(255,255,255,0.25); color: #fff; }
+.baseseason-winter { background: rgba(255,255,255,0.25); color: #fff; }
 
 /* English subtype name */
 .result-en-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-sub);
+  color: rgba(255,255,255,0.7);
   margin-bottom: 4px;
   letter-spacing: .5px;
 }
 
 .result-desc {
   font-size: 15px;
-  color: var(--text);
+  color: rgba(255,255,255,0.85);
   line-height: 1.7;
   max-width: 480px;
   margin: 0 auto;
 }
+
+/* Staggered reveal */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.result-header .result-badge          { animation: revealUp .5s ease 0.1s both; }
+.result-header .result-emoji          { animation: revealUp .5s ease 0.25s both; }
+.result-header .result-baseseason-badge { animation: revealUp .5s ease 0.35s both; }
+.result-header .result-season         { animation: revealUp .6s ease 0.5s both; }
+.result-header .result-en-name        { animation: revealUp .5s ease 0.6s both; }
+.result-header .result-subtitle       { animation: revealUp .5s ease 0.7s both; }
+.result-header .result-desc           { animation: revealUp .5s ease 0.8s both; }
 
 /* ===== CARDS ===== */
 .card {
@@ -910,8 +953,9 @@ body {
 .palette-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 14px 10px;
   margin-bottom: 24px;
+  padding-bottom: 8px;
 }
 
 .swatch {
@@ -1155,12 +1199,12 @@ body {
 
 /* ===== SHARE ===== */
 .share-btns {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .share-btn {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1185,7 +1229,12 @@ body {
 .facebook-btn { color: #1877F2; }
 .facebook-btn:hover { background: #EBF3FF; border-color: #1877F2; }
 
+.zalo-btn { color: #0068FF; }
+.zalo-btn:hover { background: #EBF3FF; border-color: #0068FF; }
+
 .copy-btn:hover { background: var(--gold-lt); border-color: var(--gold); }
+
+.share-download-btn:hover { background: var(--season-light); border-color: var(--season-primary); }
 
 /* ===== CROSS LINK ===== */
 .cross-link {
@@ -1223,6 +1272,11 @@ body {
 .cross-link p {
   font-size: 13px;
   color: var(--text-sub);
+}
+
+/* ===== COMPARE (hidden — not yet implemented) ===== */
+.compare-card {
+  display: none;
 }
 
 /* ===== RETAKE ===== */
@@ -1294,8 +1348,9 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .share-btns {
-    flex-direction: column;
+  .result-header {
+    padding: 36px 16px 28px;
+    margin: 0 -20px 24px;
   }
 
   .result-season {
