@@ -10,6 +10,7 @@ import { downloadResultCard, downloadStoryCard, downloadWallpaperCard } from './
 import { trackQuizStart, trackShare, trackRetake } from './analytics.js';
 import { handleCompare, getSeasonOptions } from './comparison.js';
 import { prevBestWorst, nextBestWorst } from './result.js';
+import { prevDrapingColor, nextDrapingColor, switchDrapingMode, retryDraping } from './draping.js';
 
 // ========================================
 // Screen Management
@@ -161,6 +162,10 @@ window.toggleDownloadMenu = function() {
 };
 window.prevBestWorst = prevBestWorst;
 window.nextBestWorst = nextBestWorst;
+window.prevDrapingColor = prevDrapingColor;
+window.nextDrapingColor = nextDrapingColor;
+window.switchDrapingMode = switchDrapingMode;
+window.retryDraping = retryDraping;
 
 // Navigation
 window.retakeQuiz = function() {

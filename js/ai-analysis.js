@@ -337,7 +337,7 @@ function analyzeColorsToScores(colors) {
   const skinHue = skinHSL.h;
   if (skinHue >= 18 && skinHue <= 55) temp += 3;
   else if (skinHue >= 10 && skinHue < 18) temp += 1;
-  else if (skinHue >= 300 || skinHue < 10) temp -= 2;
+  else if (skinHue >= 300 || skinHue < 10) temp -= 3;
 
   const rbRatio = colors.skin.r / Math.max(colors.skin.b, 1);
   if (rbRatio > 1.5) temp += 2;
@@ -376,7 +376,7 @@ function analyzeColorsToScores(colors) {
   else if (eyeContrast < 0.08) clarity -= 1;
 
   if (hairHSL.l < 0.15 && eyeHSL.l < 0.25 && contrast > 0.4) {
-    clarity -= 1;
+    clarity += 1;
   }
 
   const avgSat = (skinHSL.s + hairHSL.s + eyeHSL.s) / 3;

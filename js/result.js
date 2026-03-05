@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { SEASONS, ADJACENT_SEASONS } from './data/seasons.js';
 import { updateUrlHash } from './share.js';
 import { getSeasonConfidence } from './scoring.js';
+import { initDraping } from './draping.js';
 
 /** Best/Worst pair navigation index */
 let bwIndex = 0;
@@ -54,6 +55,7 @@ export function renderResult() {
   document.getElementById('jewelry-text').textContent = s.jewelry;
   renderCelebrities(s);
   renderProducts(s);
+  initDraping();
 
   // Scroll animations
   initScrollAnimations();

@@ -89,10 +89,11 @@
           <button class="track-btn track-quiz" onclick="startQuiz()">
             <span class="track-icon">📝</span>
             <span class="track-label">Trắc nghiệm</span>
-            <span class="track-desc">12 câu hỏi — 3 phút</span>
+            <span class="track-desc">Không cần ảnh — 3 phút</span>
           </button>
         </div>
-        <p class="intro-note">Miễn phí 100% · Ảnh không được lưu trữ</p>
+        <p class="intro-note">Miễn phí 100% · Ảnh không được lưu trữ · Cả hai đều cho kết quả tương đương</p>
+        <p class="intro-note intro-privacy-note">🔒 Nếu bạn không muốn chụp ảnh, hãy chọn Trắc nghiệm — kết quả chính xác như nhau!</p>
         <!-- Saved result banner (A5) -->
         <div class="saved-result-banner" id="saved-result-banner" style="display:none;">
           <span class="saved-emoji" id="saved-emoji"></span>
@@ -342,6 +343,43 @@
             <span class="bw-counter" id="bw-counter">1 / 4</span>
             <button class="bw-next" onclick="nextBestWorst()">▶</button>
           </div>
+        </div>
+
+        <!-- Digital Draping (AI path only) -->
+        <div class="card draping-card" id="draping-card" style="display:none;">
+          <h3 class="card-title">👗 Thử Draping kỹ thuật số</h3>
+          <div class="draping-viewport" id="draping-viewport">
+            <canvas id="draping-canvas"></canvas>
+            <div class="draping-loading" id="draping-loading" style="display:none;">
+              <div class="draping-spinner"></div>
+              <p>Đang tải AI nhận diện khuôn mặt...</p>
+            </div>
+            <div class="draping-error" id="draping-error" style="display:none;">
+              <p id="draping-error-msg"></p>
+              <button class="draping-retry-btn" onclick="retryDraping()">Thử lại</button>
+            </div>
+          </div>
+          <div class="draping-tabs" id="draping-tabs">
+            <button class="draping-tab active" data-mode="best" onclick="switchDrapingMode('best')">✅ Nên mặc</button>
+            <button class="draping-tab" data-mode="avoid" onclick="switchDrapingMode('avoid')">❌ Nên tránh</button>
+          </div>
+          <div class="draping-nav">
+            <button onclick="prevDrapingColor()">◀</button>
+            <div class="draping-color-info">
+              <div class="draping-color-dot" id="draping-color-dot"></div>
+              <span id="draping-color-name"></span>
+              <span id="draping-color-counter">1 / 12</span>
+            </div>
+            <button onclick="nextDrapingColor()">▶</button>
+          </div>
+          <p class="draping-privacy">🔒 Ảnh của bạn không được lưu trữ</p>
+        </div>
+
+        <!-- Quiz path CTA -->
+        <div class="card draping-cta-card" id="draping-cta-card" style="display:none;">
+          <h3 class="card-title">👗 Thử Draping kỹ thuật số</h3>
+          <p>Xem trực tiếp màu sắc trên ảnh của bạn!</p>
+          <button class="btn-primary" onclick="startAI()">📷 Chụp ảnh để trải nghiệm draping</button>
         </div>
 
         <!-- Adjacent Seasons (A4) -->
