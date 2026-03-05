@@ -1,6 +1,11 @@
 /* ===== RESULT RENDERING ===== */
 import { state } from './state.js';
+import { SEASONS, ADJACENT_SEASONS } from './data/seasons.js';
 import { updateUrlHash } from './share.js';
+import { getSeasonConfidence } from './scoring.js';
+
+/** Best/Worst pair navigation index */
+let bwIndex = 0;
 
 export function renderResult() {
   const s = state.currentSeason;
@@ -15,7 +20,6 @@ export function renderResult() {
   // Apply 12-season CSS class for theme (Design Kit §9)
   const resultScreen = document.getElementById('result-screen');
   if (resultScreen) {
-    // Remove all previous season theme classes
     resultScreen.className = resultScreen.className.replace(/season-theme-\S+/g, '').trim();
     resultScreen.classList.add('screen', 'season-theme-' + s.key);
   }
@@ -28,38 +32,27 @@ export function renderResult() {
   document.getElementById('result-desc').textContent = s.description;
 
   // Base season badge
-  /** @type {Record<string, string>} */
   const baseLabels = { spring: '🌸 Spring', summer: '🌊 Summer', autumn: '🍂 Autumn', winter: '❄️ Winter' };
   const baseBadge = document.getElementById('result-baseseason-badge');
   baseBadge.textContent = baseLabels[s.baseseason] || '';
   baseBadge.className = 'result-baseseason-badge baseseason-' + s.baseseason;
 
-  // Result header — gradient applied via CSS class, remove inline background
   const header = document.getElementById('result-header');
   header.style.background = '';
 
-  // 3-Axis bar chart
+  // New sections (A1, A3, B2, A4, B4, B5)
+  renderConfidence(s);
   renderAxisChart();
-
-  // Color palette
+  renderStory(s);
   renderPalette(s);
-
-  // Makeup guide
+  renderBestWorst(s);
+  renderAdjacentSeasons(s);
   renderMakeup(s);
-
-  // Clothing
   renderClothing(s);
-
-  // Hair
   renderHair(s);
-
-  // Jewelry
+  renderNails(s);
   document.getElementById('jewelry-text').textContent = s.jewelry;
-
-  // Celebrities
   renderCelebrities(s);
-
-  // Products
   renderProducts(s);
 
   // Scroll animations
@@ -68,34 +61,64 @@ export function renderResult() {
   // Confetti celebration (Design Kit §8-4)
   celebrateResult(s);
 
+  // Save result to localStorage (A5)
+  saveResult(s);
+
   // Update URL hash
   updateUrlHash();
 }
 
+/* ===== A1: Season Confidence ===== */
+function renderConfidence(s) {
+  const container = document.getElementById('confidence-bars');
+  const tip = document.getElementById('confidence-tip');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const conf = getSeasonConfidence();
+  const items = [conf.primary, conf.secondary, conf.tertiary].filter(Boolean);
+
+  items.forEach(item => {
+    const season = SEASONS[item.key];
+    if (!season) return;
+    const row = document.createElement('div');
+    row.className = 'confidence-row';
+    row.innerHTML = `
+      <span class="confidence-emoji">${season.emoji}</span>
+      <span class="confidence-name">${season.name}</span>
+      <div class="confidence-track"><div class="confidence-fill" style="width:0%"></div></div>
+      <span class="confidence-pct">${item.percent}%</span>
+    `;
+    container.appendChild(row);
+    // Animate fill
+    setTimeout(() => {
+      row.querySelector('.confidence-fill').style.width = item.percent + '%';
+    }, 200);
+  });
+
+  if (tip && conf.secondary) {
+    const sec = SEASONS[conf.secondary.key];
+    tip.textContent = `💡 Bạn cũng có thể thử các màu thuộc mùa ${sec.name} (${sec.enName})`;
+  } else if (tip) {
+    tip.textContent = '';
+  }
+}
+
+/* ===== 3-Axis Bar Chart ===== */
 function renderAxisChart() {
   const { temp, depth, clarity } = state.scores;
   const maxPossible = 15;
-
-  /** @param {number} val */
-  const normalize = (val) => {
-    const pct = (val / maxPossible) * 50;
-    return 50 + Math.max(-50, Math.min(50, pct));
-  };
+  const normalize = (val) => 50 + Math.max(-50, Math.min(50, (val / maxPossible) * 50));
 
   renderAxisBar('axis-temp', normalize(temp));
   renderAxisBar('axis-depth', normalize(depth));
   renderAxisBar('axis-clarity', normalize(clarity));
 }
 
-/**
- * @param {string} id
- * @param {number} pct
- */
 function renderAxisBar(id, pct) {
   const bar = document.getElementById(id);
   if (!bar) return;
   const center = 50;
-
   if (pct >= center) {
     bar.style.left = center + '%';
     bar.style.width = '0%';
@@ -107,9 +130,33 @@ function renderAxisBar(id, pct) {
   }
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== A3: Season Storytelling ===== */
+function renderStory(s) {
+  const popEl = document.getElementById('story-population');
+  const textEl = document.getElementById('story-text');
+  const traitsEl = document.getElementById('story-traits');
+  if (!popEl || !textEl || !traitsEl) return;
+
+  if (s.populationPercent) {
+    popEl.textContent = `Bạn thuộc nhóm ${s.name} — chiếm khoảng ${s.populationPercent}% dân số.`;
+  } else {
+    popEl.textContent = '';
+  }
+
+  textEl.textContent = s.story || s.description;
+
+  traitsEl.innerHTML = '';
+  if (s.traits && s.traits.length) {
+    s.traits.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'story-trait';
+      div.textContent = t;
+      traitsEl.appendChild(div);
+    });
+  }
+}
+
+/* ===== Color Palette (A2: hex copy) ===== */
 function renderPalette(s) {
   const grid = document.getElementById('palette-grid');
   if (!grid) return;
@@ -119,6 +166,15 @@ function renderPalette(s) {
     div.className = 'swatch';
     div.style.backgroundColor = hex;
     div.innerHTML = `<span class="swatch-hex">${hex}</span>`;
+    // A2: Click to copy hex code
+    div.style.cursor = 'pointer';
+    div.addEventListener('click', () => {
+      navigator.clipboard.writeText(hex).then(() => {
+        showToast('Đã sao chép: ' + hex);
+      }).catch(() => {
+        showToast('Đã sao chép: ' + hex);
+      });
+    });
     grid.appendChild(div);
   });
 
@@ -133,9 +189,93 @@ function renderPalette(s) {
   });
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== B2: Best vs Worst ===== */
+function renderBestWorst(s) {
+  const container = document.getElementById('bw-container');
+  const card = document.getElementById('bestworst-card');
+  if (!container) return;
+
+  if (!s.bestWorstPairs || !s.bestWorstPairs.length) {
+    if (card) card.style.display = 'none';
+    return;
+  }
+  if (card) card.style.display = '';
+
+  bwIndex = 0;
+  showBestWorstPair(s);
+}
+
+function showBestWorstPair(s) {
+  const container = document.getElementById('bw-container');
+  const counter = document.getElementById('bw-counter');
+  if (!container || !s.bestWorstPairs) return;
+
+  const pair = s.bestWorstPairs[bwIndex];
+  container.innerHTML = `
+    <div class="bw-pair">
+      <div class="bw-item best">
+        <div class="bw-swatch" style="background:${pair.best.hex}"></div>
+        <div class="bw-label" style="color:#4CAF50">✅ Nên mặc</div>
+        <div class="bw-name">${pair.best.name}</div>
+        <div class="bw-reason">${pair.best.reason}</div>
+      </div>
+      <div class="bw-item worst">
+        <div class="bw-swatch" style="background:${pair.worst.hex}"></div>
+        <div class="bw-label" style="color:#e57373">❌ Nên tránh</div>
+        <div class="bw-name">${pair.worst.name}</div>
+        <div class="bw-reason">${pair.worst.reason}</div>
+      </div>
+    </div>
+  `;
+  if (counter) counter.textContent = `${bwIndex + 1} / ${s.bestWorstPairs.length}`;
+}
+
+// Exposed to window in app.js
+export function prevBestWorst() {
+  const s = state.currentSeason;
+  if (!s || !s.bestWorstPairs) return;
+  bwIndex = (bwIndex - 1 + s.bestWorstPairs.length) % s.bestWorstPairs.length;
+  showBestWorstPair(s);
+}
+
+export function nextBestWorst() {
+  const s = state.currentSeason;
+  if (!s || !s.bestWorstPairs) return;
+  bwIndex = (bwIndex + 1) % s.bestWorstPairs.length;
+  showBestWorstPair(s);
+}
+
+/* ===== A4: Adjacent Seasons ===== */
+function renderAdjacentSeasons(s) {
+  const list = document.getElementById('adjacent-list');
+  const card = document.getElementById('adjacent-card');
+  if (!list) return;
+
+  const adjKeys = ADJACENT_SEASONS[s.key];
+  if (!adjKeys || !adjKeys.length) {
+    if (card) card.style.display = 'none';
+    return;
+  }
+  if (card) card.style.display = '';
+  list.innerHTML = '';
+
+  adjKeys.forEach(key => {
+    const adj = SEASONS[key];
+    if (!adj) return;
+    const item = document.createElement('div');
+    item.className = 'adjacent-item';
+    const miniPalette = adj.palette.slice(0, 4).map(hex =>
+      `<div class="adjacent-mini-swatch" style="background:${hex}"></div>`
+    ).join('');
+    item.innerHTML = `
+      <div class="adjacent-season-name">${adj.emoji} ${adj.name} (${adj.enName})</div>
+      <div class="adjacent-mini-palette">${miniPalette}</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+/* ===== Makeup ===== */
 function renderMakeup(s) {
   const grid = document.getElementById('makeup-grid');
   if (!grid) return;
@@ -162,14 +302,11 @@ function renderMakeup(s) {
   });
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== Clothing ===== */
 function renderClothing(s) {
   const list = document.getElementById('clothing-list');
   if (!list) return;
   list.innerHTML = '';
-
   s.clothing.forEach(cat => {
     const div = document.createElement('div');
     div.className = 'clothing-item';
@@ -183,14 +320,11 @@ function renderClothing(s) {
   });
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== Hair ===== */
 function renderHair(s) {
   const list = document.getElementById('hair-list');
   if (!list) return;
   list.innerHTML = '';
-
   s.hair.forEach(h => {
     const div = document.createElement('div');
     div.className = 'hair-tag';
@@ -199,14 +333,31 @@ function renderHair(s) {
   });
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== B4: Nail Colors ===== */
+function renderNails(s) {
+  const list = document.getElementById('nail-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!s.nails || !s.nails.length) {
+    list.closest('.nail-card').style.display = 'none';
+    return;
+  }
+  list.closest('.nail-card').style.display = '';
+
+  s.nails.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'nail-tag';
+    div.innerHTML = `<div class="nail-dot" style="background:${n.color}"></div>${n.name}`;
+    list.appendChild(div);
+  });
+}
+
+/* ===== Celebrities ===== */
 function renderCelebrities(s) {
   const list = document.getElementById('celeb-list');
   if (!list) return;
   list.innerHTML = '';
-
   s.celebrities.forEach(name => {
     const span = document.createElement('span');
     span.className = 'celeb-tag';
@@ -215,15 +366,12 @@ function renderCelebrities(s) {
   });
 }
 
-/**
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== Products ===== */
 function renderProducts(s) {
   const grid = document.getElementById('product-grid');
   if (!grid) return;
   grid.innerHTML = '';
 
-  // Affiliate disclosure
   const disclosure = document.createElement('p');
   disclosure.className = 'affiliate-disclosure';
   disclosure.textContent = 'Bài viết có chứa liên kết liên kết. Chúng tôi có thể nhận hoa hồng khi bạn mua qua liên kết, không ảnh hưởng đến giá bạn phải trả.';
@@ -246,12 +394,10 @@ function renderProducts(s) {
   });
 }
 
-/** Scroll animation using IntersectionObserver (Design Kit §8-5) */
+/* ===== Scroll Animation (Design Kit §8-5) ===== */
 function initScrollAnimations() {
   const cards = document.querySelectorAll('#result-screen .card');
-  cards.forEach(card => {
-    card.classList.add('card-animate');
-  });
+  cards.forEach(card => card.classList.add('card-animate'));
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -265,22 +411,34 @@ function initScrollAnimations() {
   cards.forEach(card => observer.observe(card));
 }
 
-/**
- * Confetti celebration on result reveal (Design Kit §8-4).
- * @param {import('./data/seasons.js').SeasonData} s
- */
+/* ===== Confetti (Design Kit §8-4) ===== */
 function celebrateResult(s) {
   if (typeof window.confetti !== 'function') return;
   const colors = s.palette.slice(0, 4);
   setTimeout(() => {
     window.confetti({
-      particleCount: 60,
-      spread: 55,
-      origin: { y: 0.65 },
-      colors: colors,
-      gravity: 0.8,
-      scalar: 0.9,
-      drift: 0,
+      particleCount: 60, spread: 55, origin: { y: 0.65 },
+      colors, gravity: 0.8, scalar: 0.9, drift: 0,
     });
   }, 600);
+}
+
+/* ===== A5: Save result to localStorage ===== */
+function saveResult(s) {
+  try {
+    localStorage.setItem('pct_result', JSON.stringify({
+      seasonKey: s.key,
+      scores: { ...state.scores },
+      timestamp: Date.now(),
+    }));
+  } catch (e) { /* quota exceeded — ignore */ }
+}
+
+/* ===== Toast notification ===== */
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }

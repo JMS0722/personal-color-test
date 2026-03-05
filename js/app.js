@@ -6,9 +6,10 @@ import { determineSeason } from './scoring.js';
 import { renderResult } from './result.js';
 import { startAI, switchCamera, exitAI, capturePhoto, handleUpload, retakePhoto, analyzePhoto } from './ai-analysis.js';
 import { shareFacebook, shareZalo, copyLink, retakeQuiz } from './share.js';
-import { downloadResultCard } from './result-card.js';
+import { downloadResultCard, downloadStoryCard, downloadWallpaperCard } from './result-card.js';
 import { trackQuizStart, trackShare, trackRetake } from './analytics.js';
 import { handleCompare, getSeasonOptions } from './comparison.js';
+import { prevBestWorst, nextBestWorst } from './result.js';
 
 // ========================================
 // Screen Management
@@ -146,11 +147,45 @@ window.downloadResultCard = function() {
   trackShare('download', state.currentSeason ? state.currentSeason.key : '');
   downloadResultCard();
 };
+window.downloadStoryCard = function() {
+  trackShare('download_story', state.currentSeason ? state.currentSeason.key : '');
+  downloadStoryCard();
+};
+window.downloadWallpaperCard = function() {
+  trackShare('download_wallpaper', state.currentSeason ? state.currentSeason.key : '');
+  downloadWallpaperCard();
+};
+window.toggleDownloadMenu = function() {
+  const menu = document.getElementById('download-menu');
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+window.prevBestWorst = prevBestWorst;
+window.nextBestWorst = nextBestWorst;
 
 // Navigation
 window.retakeQuiz = function() {
   trackRetake();
   retakeQuiz();
+};
+
+// Saved result (A5)
+window.viewSavedResult = function() {
+  const saved = localStorage.getItem('pct_result');
+  if (!saved) return;
+  const data = JSON.parse(saved);
+  if (data.seasonKey && SEASONS[data.seasonKey]) {
+    state.scores.temp = data.scores.temp || 0;
+    state.scores.depth = data.scores.depth || 0;
+    state.scores.clarity = data.scores.clarity || 0;
+    state.currentSeason = SEASONS[data.seasonKey];
+    renderResult();
+    showScreen('result-screen');
+    initComparisonPicker();
+  }
+};
+window.dismissSavedResult = function() {
+  const banner = document.getElementById('saved-result-banner');
+  if (banner) banner.style.display = 'none';
 };
 
 // ========================================
@@ -160,6 +195,25 @@ window.retakeQuiz = function() {
 document.addEventListener('DOMContentLoaded', () => {
   // Social proof
   initSocialProof();
+
+  // A5: Show saved result banner if available
+  const saved = localStorage.getItem('pct_result');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.seasonKey && SEASONS[data.seasonKey]) {
+        const banner = document.getElementById('saved-result-banner');
+        const nameEl = document.getElementById('saved-name');
+        const emojiEl = document.getElementById('saved-emoji');
+        if (banner && nameEl && emojiEl) {
+          const season = SEASONS[data.seasonKey];
+          nameEl.textContent = season.name;
+          emojiEl.textContent = season.emoji;
+          banner.style.display = 'flex';
+        }
+      }
+    } catch (e) { /* ignore parse errors */ }
+  }
 
   // URL restoration
   const hash = window.location.hash;

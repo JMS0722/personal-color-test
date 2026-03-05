@@ -27,7 +27,9 @@ Single-page application: HTML/CSS/Vanilla JS.
 
 **12 season keys**: `brightspring`, `lightspring`, `warmspring`, `lightsummer`, `coolsummer`, `softsummer`, `warmautumn`, `deepautumn`, `softautumn`, `coolwinter`, `deepwinter`, `brightwinter`
 
-**Each SEASONS entry has**: key, baseseason, emoji, name, enName, subtitle, description, gradient, primary, light, palette(12), avoid(6), makeup(4), clothing(5), hair(4), jewelry, celebrities(6), products(4)
+**Each SEASONS entry has**: key, baseseason, emoji, name, enName, subtitle, description, gradient, primary, light, palette(12), avoid(6), makeup(4), clothing(5), hair(4), jewelry, celebrities(6), products(4), populationPercent, story, traits(3), nails(4), bestWorstPairs(4)
+
+**ADJACENT_SEASONS**: Maps each season key → 2 adjacent season keys (for cross-season recommendations)
 
 **URL fallback**: Old 4-season URLs (e.g. `#result=spring`) trigger `determineSeason()` recalculation from scores.
 
@@ -40,13 +42,26 @@ Single-page application: HTML/CSS/Vanilla JS.
 6. Clarity: contrast strength + skin saturation + eye contrast + overall mutedness
 7. Feed scores into same `determineSeason()` as quiz path
 
-## Files
+## Files (ES Module Architecture)
 - `index.html` — SPA shell with 5 screens (intro/ai/quiz/loading/result), OG/meta tags
-- `script.js` — 12 questions + AI camera/analysis engine + 12-season scoring + result data + share logic
-- `style.css` — gold/rose theme, baseseason badges, responsive (480px/768px breakpoints)
-- `test_suite.js` — 202 tests: data integrity, 12-season reachability, subtype logic, AI, DOM/CSS consistency
+- `js/app.js` — Entry point, screen management, window bindings, saved result banner
+- `js/state.js` — Shared state (scores, currentSeason, currentQuestion)
+- `js/quiz.js` — Quiz logic (adaptive questioning)
+- `js/scoring.js` — `getBaseSeason()`, `getSubtype()`, `determineSeason()`, `getSeasonConfidence()`
+- `js/result.js` — Result rendering (confidence bars, story, palette, bestWorst, adjacent, nails, makeup, clothing, hair, celebrities, products)
+- `js/result-card.js` — Canvas image generators: OG card (1200x630), Story card (1080x1920), Wallpaper card (1080x1920)
+- `js/ai-analysis.js` — Camera/upload AI color analysis
+- `js/share.js` — Facebook/Zalo/link sharing, URL hash management
+- `js/comparison.js` — Friend season comparison (12x12 compatibility)
+- `js/analytics.js` — GA4 event tracking stubs
+- `js/data/seasons.js` — 12-season data + ADJACENT_SEASONS mapping
+- `css/base.css` — Design tokens, typography, screen transitions
+- `css/components.css` — UI components (buttons, cards, progress bar)
+- `css/screens.css` — Screen-specific styles (intro, quiz, loading, result)
+- `test_suite.js` — 244 tests: data integrity, 12-season reachability, subtype logic, AI, DOM/CSS consistency
 - `privacy.html`, `contact.html` — Legal/contact pages
 - `.github/workflows/deploy.yml` — GitHub Actions → Cloudflare Pages
+- `docs/improvement-plan-v2.md` — Feature improvement plan (Phase 2.5-2.7 complete)
 
 ## Deployment
 - GitHub Actions auto-deploys on push to `main`

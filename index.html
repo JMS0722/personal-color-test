@@ -93,6 +93,18 @@
           </button>
         </div>
         <p class="intro-note">Miễn phí 100% · Ảnh không được lưu trữ</p>
+        <!-- Saved result banner (A5) -->
+        <div class="saved-result-banner" id="saved-result-banner" style="display:none;">
+          <span class="saved-emoji" id="saved-emoji"></span>
+          <div class="saved-info">
+            <span class="saved-label">Kết quả trước đó:</span>
+            <strong class="saved-name" id="saved-name"></strong>
+          </div>
+          <div class="saved-actions">
+            <button class="saved-view-btn" onclick="viewSavedResult()">Xem lại</button>
+            <button class="saved-redo-btn" onclick="dismissSavedResult()">Làm lại</button>
+          </div>
+        </div>
         <div class="social-proof">
           <span id="social-proof-count">0</span> người đã làm bài test
         </div>
@@ -259,6 +271,13 @@
           <p class="result-desc" id="result-desc"></p>
         </div>
 
+        <!-- Season Confidence (A1) -->
+        <div class="card confidence-card" id="confidence-card">
+          <h3 class="card-title">📊 Mức độ phù hợp</h3>
+          <div class="confidence-bars" id="confidence-bars"></div>
+          <p class="confidence-tip" id="confidence-tip"></p>
+        </div>
+
         <!-- 3-Axis Bar Chart -->
         <div class="card axis-card">
           <h3 class="card-title">📊 Phân tích 3 trục màu sắc</h3>
@@ -290,12 +309,47 @@
           </div>
         </div>
 
+        <!-- 3-Axis Education (B5) -->
+        <div class="card education-card">
+          <h3 class="card-title">📖 Hiểu về 3 trục màu sắc</h3>
+          <div class="edu-item"><span class="edu-icon">🌡️</span><div><strong>Cool ↔ Warm (Tông màu)</strong><p>Xác định bởi undertone (tông nền) của da. Cool = tông xanh/hồng, Warm = tông vàng/cam. Ảnh hưởng trực tiếp đến bảng màu phù hợp.</p></div></div>
+          <div class="edu-item"><span class="edu-icon">🔆</span><div><strong>Dark ↔ Light (Độ sáng)</strong><p>Mức độ sáng tối tổng thể của da, tóc và mắt. Quyết định bạn hợp với gam màu đậm hay nhạt.</p></div></div>
+          <div class="edu-item"><span class="edu-icon">💎</span><div><strong>Soft ↔ Clear (Độ trong)</strong><p>Mức tương phản giữa da, tóc và mắt. Clear = tương phản cao, sắc nét. Soft = hài hòa, nhẹ nhàng.</p></div></div>
+        </div>
+
+        <!-- Season Story (A3) -->
+        <div class="card story-card" id="story-card">
+          <h3 class="card-title">💡 Về mùa màu của bạn</h3>
+          <p class="story-population" id="story-population"></p>
+          <p class="story-text" id="story-text"></p>
+          <div class="story-traits" id="story-traits"></div>
+        </div>
+
         <!-- Color Palette -->
         <div class="card palette-card">
           <h3 class="card-title">🎨 Bảng màu phù hợp</h3>
           <div class="palette-grid" id="palette-grid"></div>
           <h4 class="palette-avoid-title">❌ Màu nên tránh</h4>
           <div class="palette-avoid" id="palette-avoid"></div>
+        </div>
+
+        <!-- Best vs Worst (B2) -->
+        <div class="card bestworst-card" id="bestworst-card">
+          <h3 class="card-title">✅ vs ❌ So sánh trực quan</h3>
+          <div class="bw-container" id="bw-container"></div>
+          <div class="bw-nav">
+            <button class="bw-prev" onclick="prevBestWorst()">◀</button>
+            <span class="bw-counter" id="bw-counter">1 / 4</span>
+            <button class="bw-next" onclick="nextBestWorst()">▶</button>
+          </div>
+        </div>
+
+        <!-- Adjacent Seasons (A4) -->
+        <div class="card adjacent-card" id="adjacent-card">
+          <h3 class="card-title">🔄 Mùa lân cận</h3>
+          <p class="adjacent-intro">Bạn cũng có thể sử dụng một số màu từ các mùa lân cận:</p>
+          <div class="adjacent-list" id="adjacent-list"></div>
+          <p class="adjacent-tip">💡 Tip: Dùng màu lân cận làm điểm nhấn, giữ màu chính làm nền!</p>
         </div>
 
         <!-- Makeup Guide -->
@@ -314,6 +368,12 @@
         <div class="card hair-card">
           <h3 class="card-title">💇 Màu tóc phù hợp</h3>
           <div class="hair-list" id="hair-list"></div>
+        </div>
+
+        <!-- Nail Color (B4) -->
+        <div class="card nail-card">
+          <h3 class="card-title">💅 Màu sơn móng phù hợp</h3>
+          <div class="nail-list" id="nail-list"></div>
         </div>
 
         <!-- Jewelry -->
@@ -348,9 +408,14 @@
             <button class="share-btn copy-btn" onclick="copyLink()">
               🔗 Sao chép link
             </button>
-            <button class="share-btn share-download-btn" onclick="downloadResultCard()">
-              📥 Tải ảnh kết quả
-            </button>
+            <div class="download-dropdown">
+              <button class="share-btn share-download-btn" onclick="toggleDownloadMenu()">📥 Tải ảnh ▼</button>
+              <div class="download-menu" id="download-menu" style="display:none;">
+                <button onclick="downloadResultCard()">🖼️ Ảnh ngang (Facebook/Zalo)</button>
+                <button onclick="downloadStoryCard()">📱 Ảnh dọc (Story/TikTok)</button>
+                <button onclick="downloadWallpaperCard()">🎨 Bảng màu nền điện thoại</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -403,6 +468,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
 
   <!-- Confetti (Design Kit §8-4, 6KB) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>

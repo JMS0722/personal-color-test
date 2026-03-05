@@ -74,3 +74,56 @@ export function determineSeason() {
   const subtype = getSubtype(baseSeason, temp, depth, clarity);
   state.currentSeason = SEASONS[subtype];
 }
+
+/**
+ * Calculate confidence percentages for all 12 seasons.
+ * Returns top 3 seasons with percentages.
+ * @returns {{ primary: {key: string, percent: number}, secondary: {key: string, percent: number}|null, tertiary: {key: string, percent: number}|null }}
+ */
+export function getSeasonConfidence() {
+  const { temp, depth, clarity } = state.scores;
+
+  // Season axis expectations: temp direction, depth direction, clarity direction
+  /** @type {Record<string, {t: number, d: number, c: number}>} */
+  const defs = {
+    brightspring:  { t:  1, d:  1, c:  2 },
+    lightspring:   { t:  1, d:  2, c:  1 },
+    warmspring:    { t:  2, d:  1, c:  1 },
+    lightsummer:   { t: -1, d:  2, c: -1 },
+    coolsummer:    { t: -2, d:  1, c: -1 },
+    softsummer:    { t: -1, d:  1, c: -2 },
+    softautumn:    { t:  1, d: -1, c: -2 },
+    warmautumn:    { t:  2, d: -1, c: -1 },
+    deepautumn:    { t:  1, d: -2, c: -1 },
+    deepwinter:    { t: -1, d: -2, c:  1 },
+    coolwinter:    { t: -2, d: -1, c:  1 },
+    brightwinter:  { t: -1, d:  1, c:  2 },
+  };
+
+  /** @type {Record<string, number>} */
+  const affinities = {};
+  for (const [key, def] of Object.entries(defs)) {
+    const score = temp * def.t + depth * def.d + clarity * def.c;
+    affinities[key] = Math.max(0, score);
+  }
+
+  const total = Object.values(affinities).reduce((a, b) => a + b, 0) || 1;
+  const sorted = Object.entries(affinities)
+    .map(([key, val]) => ({ key, percent: Math.round((val / total) * 100) }))
+    .sort((a, b) => b.percent - a.percent);
+
+  // Ensure primary matches current season
+  const currentKey = state.currentSeason ? state.currentSeason.key : sorted[0].key;
+  const currentIdx = sorted.findIndex(s => s.key === currentKey);
+  if (currentIdx > 0) {
+    const current = sorted.splice(currentIdx, 1)[0];
+    current.percent = Math.max(current.percent, sorted[0].percent);
+    sorted.unshift(current);
+  }
+
+  return {
+    primary: sorted[0],
+    secondary: sorted[1] && sorted[1].percent > 5 ? sorted[1] : null,
+    tertiary: sorted[2] && sorted[2].percent > 5 ? sorted[2] : null,
+  };
+}
