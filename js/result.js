@@ -165,14 +165,16 @@ function renderPalette(s) {
     const div = document.createElement('div');
     div.className = 'swatch';
     div.style.backgroundColor = hex;
-    div.innerHTML = `<span class="swatch-hex">${hex}</span>`;
+    const colorName = hexToViName(hex);
+    div.innerHTML = `<span class="swatch-hex">${colorName}</span>`;
+    div.title = colorName + ' (' + hex + ')';
     // A2: Click to copy hex code
     div.style.cursor = 'pointer';
     div.addEventListener('click', () => {
       navigator.clipboard.writeText(hex).then(() => {
-        showToast('Đã sao chép: ' + hex);
+        showToast('Đã sao chép: ' + colorName + ' ' + hex);
       }).catch(() => {
-        showToast('Đã sao chép: ' + hex);
+        showToast('Đã sao chép: ' + colorName + ' ' + hex);
       });
     });
     grid.appendChild(div);
@@ -432,6 +434,63 @@ function saveResult(s) {
       timestamp: Date.now(),
     }));
   } catch (e) { /* quota exceeded — ignore */ }
+}
+
+/* ===== Hex → Vietnamese color name ===== */
+function hexToViName(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2 / 255;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1)) / 255;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+    else if (max === g) h = ((b - r) / d + 2) * 60;
+    else h = ((r - g) / d + 4) * 60;
+  }
+
+  // Near-achromatic
+  if (s < 0.08) {
+    if (l > 0.92) return 'Trắng';
+    if (l > 0.75) return 'Xám nhạt';
+    if (l > 0.45) return 'Xám';
+    if (l > 0.2) return 'Xám đậm';
+    return 'Đen';
+  }
+
+  // Lightness prefix
+  let prefix = '';
+  if (l > 0.82) prefix = 'nhạt ';
+  else if (l < 0.25) prefix = 'đậm ';
+
+  // Hue → name
+  let name;
+  if (h < 12) name = 'Đỏ';
+  else if (h < 25) name = 'Đỏ cam';
+  else if (h < 40) name = 'Cam';
+  else if (h < 50) name = 'Cam vàng';
+  else if (h < 65) name = 'Vàng';
+  else if (h < 80) name = 'Vàng chanh';
+  else if (h < 150) name = 'Xanh lá';
+  else if (h < 175) name = 'Xanh ngọc';
+  else if (h < 200) name = 'Xanh cyan';
+  else if (h < 230) name = 'Xanh dương';
+  else if (h < 260) name = 'Xanh lam';
+  else if (h < 290) name = 'Tím';
+  else if (h < 320) name = 'Tím hồng';
+  else if (h < 345) name = 'Hồng';
+  else name = 'Đỏ';
+
+  // Saturation modifier
+  if (s < 0.25) name += ' xám';
+  else if (s > 0.8 && l > 0.5) name += ' tươi';
+
+  return prefix ? name + ' ' + prefix.trim() : name;
 }
 
 /* ===== Toast notification ===== */
