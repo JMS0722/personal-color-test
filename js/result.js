@@ -158,29 +158,73 @@ function renderStory(s) {
   }
 }
 
-/* ===== Color Palette (A2: hex copy) ===== */
+/* ===== Color Palette (grouped by tone + draping integration) ===== */
 function renderPalette(s) {
-  const grid = document.getElementById('palette-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
+  const container = document.getElementById('palette-groups');
+  const hint = document.getElementById('palette-hint');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Hint for draping integration
+  const hasDraping = !!state.capturedImageData;
+  if (hint) {
+    hint.textContent = hasDraping
+      ? '💡 Nhấn vào màu để thử draping trên ảnh của bạn!'
+      : '💡 Nhấn vào màu để sao chép mã hex';
+  }
+
+  // Group palette colors by tone
+  const groups = { warm: [], cool: [], neutral: [] };
   s.palette.forEach(hex => {
-    const div = document.createElement('div');
-    div.className = 'swatch';
-    div.style.backgroundColor = hex;
-    const colorName = hexToViName(hex);
-    div.innerHTML = `<span class="swatch-hex">${colorName}</span>`;
-    div.title = colorName + ' (' + hex + ')';
-    // A2: Click to copy hex code
-    div.style.cursor = 'pointer';
-    div.addEventListener('click', () => {
-      navigator.clipboard.writeText(hex).then(() => {
-        showToast('Đã sao chép: ' + colorName + ' ' + hex);
-      }).catch(() => {
-        showToast('Đã sao chép: ' + colorName + ' ' + hex);
-      });
-    });
-    grid.appendChild(div);
+    const group = classifyTone(hex);
+    groups[group].push(hex);
   });
+
+  const groupLabels = {
+    warm: { label: '🔥 Tông ấm', subtitle: 'Đỏ · Cam · Vàng' },
+    cool: { label: '❄️ Tông lạnh', subtitle: 'Xanh · Tím · Hồng' },
+    neutral: { label: '⚖️ Trung tính', subtitle: 'Nâu · Xám · Kem' }
+  };
+
+  for (const [key, colors] of Object.entries(groups)) {
+    if (colors.length === 0) continue;
+    const group = document.createElement('div');
+    group.className = 'palette-group';
+
+    const header = document.createElement('div');
+    header.className = 'palette-group-header';
+    header.innerHTML = `<span class="palette-group-label">${groupLabels[key].label}</span><span class="palette-group-sub">${groupLabels[key].subtitle}</span>`;
+    group.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'palette-grid';
+    colors.forEach(hex => {
+      const div = document.createElement('div');
+      div.className = 'swatch';
+      div.style.backgroundColor = hex;
+      const colorName = hexToViName(hex);
+      div.innerHTML = `<span class="swatch-hex">${colorName}</span>`;
+      div.title = colorName + ' (' + hex + ')';
+      div.style.cursor = 'pointer';
+      div.addEventListener('click', () => {
+        // Try draping first, fallback to copy
+        if (hasDraping && window.applyDrapingColor && window.applyDrapingColor(hex)) {
+          const drapingCard = document.getElementById('draping-card');
+          if (drapingCard) drapingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          showToast('Đang thử màu ' + colorName + ' trên ảnh...');
+        } else {
+          navigator.clipboard.writeText(hex).then(() => {
+            showToast('Đã sao chép: ' + colorName + ' ' + hex);
+          }).catch(() => {
+            showToast(colorName + ' ' + hex);
+          });
+        }
+      });
+      grid.appendChild(div);
+    });
+    group.appendChild(grid);
+    container.appendChild(group);
+  }
 
   const avoid = document.getElementById('palette-avoid');
   if (!avoid) return;
@@ -191,6 +235,30 @@ function renderPalette(s) {
     div.style.backgroundColor = hex;
     avoid.appendChild(div);
   });
+}
+
+/** Classify hex color into warm/cool/neutral */
+function classifyTone(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2 / 255;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1)) / 255;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+    else if (max === g) h = ((b - r) / d + 2) * 60;
+    else h = ((r - g) / d + 4) * 60;
+  }
+  // Low saturation = neutral
+  if (s < 0.15) return 'neutral';
+  // Warm: reds, oranges, yellows, warm greens
+  if ((h >= 0 && h < 80) || h >= 320) return 'warm';
+  // Cool: blues, purples, cool greens, pinks
+  return 'cool';
 }
 
 /* ===== B2: Best vs Worst ===== */

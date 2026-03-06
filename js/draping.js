@@ -13,8 +13,8 @@ const JAW_START = 8;
 const JAW_END = 28;
 
 // CDN paths
-const VISION_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.js';
-const WASM_PATH = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm';
+const VISION_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21';
+const WASM_PATH = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm';
 const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
 
 let faceLandmarker = null;
@@ -74,6 +74,31 @@ export function retryDraping() {
   bootstrapDraping();
 }
 
+/**
+ * Apply a specific color from palette to draping canvas.
+ * Called when user taps a palette swatch.
+ */
+export function applyDrapingColor(hex) {
+  if (!drapingCanvas || !drapingCtx || !sourceCanvas) return false;
+  // Switch to best mode and find color index
+  currentMode = 'best';
+  loadSeasonColors();
+  const idx = currentColors.indexOf(hex);
+  if (idx >= 0) {
+    currentIndex = idx;
+  } else {
+    // Color not in current list — inject temporarily
+    currentColors.push(hex);
+    currentColorNames.push(hexToViName(hex));
+    currentIndex = currentColors.length - 1;
+  }
+  document.querySelectorAll('.draping-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.mode === 'best');
+  });
+  renderDraping();
+  return true;
+}
+
 // ========================================
 // Bootstrap
 // ========================================
@@ -131,16 +156,29 @@ function loadMediaPipe() {
       resolve();
       return;
     }
+    // CJS bundle needs `module` and `exports` shims for browser
+    if (!window.module) window.module = { exports: {} };
+    if (!window.exports) window.exports = window.module.exports;
+
     const script = document.createElement('script');
     script.src = VISION_CDN;
     script.crossOrigin = 'anonymous';
     script.onload = () => {
-      // Allow globals to initialize
+      let attempts = 0;
       const check = () => {
+        if (attempts++ > 50) return reject(new Error('MediaPipe globals not found'));
+        // Check known global locations
         if (window.FilesetResolver && window.FaceLandmarker) return resolve();
         if (window.vision) {
           window.FilesetResolver = window.vision.FilesetResolver;
           window.FaceLandmarker = window.vision.FaceLandmarker;
+          return resolve();
+        }
+        // CJS exports check
+        const exp = window.module && window.module.exports;
+        if (exp && exp.FilesetResolver) {
+          window.FilesetResolver = exp.FilesetResolver;
+          window.FaceLandmarker = exp.FaceLandmarker;
           return resolve();
         }
         setTimeout(check, 100);

@@ -10,7 +10,7 @@ import { downloadResultCard, downloadStoryCard, downloadWallpaperCard } from './
 import { trackQuizStart, trackShare, trackRetake } from './analytics.js';
 import { handleCompare, getSeasonOptions } from './comparison.js';
 import { prevBestWorst, nextBestWorst } from './result.js';
-import { prevDrapingColor, nextDrapingColor, switchDrapingMode, retryDraping } from './draping.js';
+import { prevDrapingColor, nextDrapingColor, switchDrapingMode, retryDraping, applyDrapingColor } from './draping.js';
 
 // ========================================
 // Screen Management
@@ -166,6 +166,15 @@ window.prevDrapingColor = prevDrapingColor;
 window.nextDrapingColor = nextDrapingColor;
 window.switchDrapingMode = switchDrapingMode;
 window.retryDraping = retryDraping;
+window.applyDrapingColor = applyDrapingColor;
+window.switchStyleTab = function(tab) {
+  document.querySelectorAll('.style-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.style-tab').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById('style-tab-' + tab);
+  if (target) target.style.display = '';
+  const btn = document.querySelector(`.style-tab[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('active');
+};
 
 // Navigation
 window.retakeQuiz = function() {
