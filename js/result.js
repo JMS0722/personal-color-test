@@ -412,10 +412,10 @@ function renderNails(s) {
   list.innerHTML = '';
 
   if (!s.nails || !s.nails.length) {
-    list.closest('.nail-card').style.display = 'none';
+    list.style.display = 'none';
     return;
   }
-  list.closest('.nail-card').style.display = '';
+  list.style.display = '';
 
   s.nails.forEach(n => {
     const div = document.createElement('div');
